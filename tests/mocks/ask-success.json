@@ -1,0 +1,67 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/v1/ask",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "transformers": ["response-template"],
+    "jsonBody": {
+      "status": "success",
+      "answer": "Based on the documents, here is the answer to your question. The RAG system found relevant information from 2 documents that provide comprehensive details about your inquiry.",
+      "question": "What is the RAG system?",
+      "tenant_id": "test-tenant",
+      "retrieved_documents": [
+        {
+          "document_id": "doc-1",
+          "title": "Technical Documentation",
+          "content": "This document contains technical specifications and guidelines for the RAG system implementation.",
+          "score": 0.95,
+          "metadata": {
+            "type": "documentation",
+            "department": "IT"
+          },
+          "filename": "tech-doc.pdf",
+          "folder_path": "/documents/technical",
+          "creation_date": "2024-08-01 19:44:00"
+        },
+        {
+          "document_id": "doc-2",
+          "title": "User Guide",
+          "content": "Step-by-step instructions for users on how to interact with the system effectively.",
+          "score": 0.87,
+          "metadata": {
+            "type": "guide",
+            "department": "Support"
+          },
+          "filename": "user-guide.pdf",
+          "folder_path": "/documents/guides",
+          "creation_date": "2024-08-01 20:15:00"
+        }
+      ],
+      "processing_time": 1.45,
+      "model_used": "llama3",
+      "confidence": 0.92,
+      "confidence_level": "very_high",
+      "ui_message": "High confidence response based on relevant documentation",
+      "reliability_indicators": {
+        "source_quality": "high",
+        "answer_completeness": "complete",
+        "citation_coverage": 1.0
+      },
+      "validation_passed": true,
+      "search_strategy": "hybrid_semantic_exact"
+    }
+  }
+}

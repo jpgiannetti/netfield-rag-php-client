@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/confidence/thresholds",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "status": "success",
+      "thresholds": {
+        "low": 0.3,
+        "medium": 0.6,
+        "high": 0.8,
+        "very_high": 0.9
+      },
+      "tenant_id": "test-tenant",
+      "last_updated": "2024-08-01T19:44:00Z"
+    }
+  }
+}

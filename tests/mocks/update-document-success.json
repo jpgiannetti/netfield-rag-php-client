@@ -1,0 +1,27 @@
+{
+  "request": {
+    "method": "PUT",
+    "urlPathPattern": "/api/v1/index/.*",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "transformers": ["response-template"],
+    "jsonBody": {
+      "status": "success",
+      "message": "Document updated successfully",
+      "document_id": "updated-document-id",
+      "processing_time": 0.65
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/v1/ask",
+    "headers": {
+      "Authorization": {
+        "absent": true
+      }
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "detail": "Not authenticated"
+    }
+  }
+}

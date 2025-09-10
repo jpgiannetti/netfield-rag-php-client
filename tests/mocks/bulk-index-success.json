@@ -1,0 +1,29 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/v1/bulk-index",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "transformers": ["response-template"],
+    "jsonBody": {
+      "status": "success",
+      "total_documents": 3,
+      "indexed_successfully": 3,
+      "errors": [],
+      "processing_time": 2.3,
+      "tenant_id": "{{ request.body.tenant_id }}"
+    }
+  }
+}

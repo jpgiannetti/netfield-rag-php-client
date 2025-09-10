@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # Service de test PHP
+  php-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-php-client-tests
+    volumes:
+      - .:/app
+      - ./tests/reports:/app/tests/reports
+      - ./tests/coverage:/app/tests/coverage
+    environment:
+      - PHP_ENV=test
+      - RAG_API_URL=http://rag-api:8080
+      - RAG_TENANT_ID=test-tenant
+      - RAG_JWT_SECRET=test-secret-jwt-key-for-docker-tests
+    depends_on:
+      - rag-api
+      - wiremock
+    networks:
+      - test-network
+    command: tail -f /dev/null  # Keep container running for interactive testing
+
+  # Mock RAG API service pour les tests d'intégration
+  rag-api:
+    image: wiremock/wiremock:latest
+    container_name: rag-api-mock
+    ports:
+      - "8889:8080"
+    volumes:
+      - ./tests/mocks:/home/wiremock/mappings
+    networks:
+      - test-network
+
+  # WireMock standalone pour mocks personnalisés
+  wiremock:
+    image: wiremock/wiremock:latest
+    container_name: wiremock-server
+    ports:
+      - "9999:8080"
+    volumes:
+      - ./tests/wiremock:/home/wiremock
+    networks:
+      - test-network
+
+  # Base de données de test (optionnelle)
+  test-db:
+    image: mysql:8.0
+    container_name: test-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: test_password
+      MYSQL_DATABASE: rag_test
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: test_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - test_db_data:/var/lib/mysql
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge
+
+volumes:
+  test_db_data:

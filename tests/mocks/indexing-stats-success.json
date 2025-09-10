@@ -1,0 +1,35 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/api/v1/index/stats/.*",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "transformers": ["response-template"],
+    "jsonBody": {
+      "status": "success",
+      "tenant_id": "test-tenant",
+      "stats": {
+        "total_documents": 150,
+        "total_chunks": 1200,
+        "average_processing_time": 0.85,
+        "last_indexed": "2024-08-01T20:30:00Z",
+        "index_size_mb": 45.7,
+        "document_types": {
+          "pdf": 89,
+          "txt": 32,
+          "docx": 29
+        }
+      },
+      "processing_time": 0.12
+    }
+  }
+}

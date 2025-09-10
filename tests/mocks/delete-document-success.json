@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "DELETE",
+    "urlPathPattern": "/api/v1/index/.*",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "transformers": ["response-template"],
+    "jsonBody": {
+      "status": "success",
+      "message": "Document deleted successfully",
+      "document_id": "deleted-document-id",
+      "processing_time": 0.25
+    }
+  }
+}

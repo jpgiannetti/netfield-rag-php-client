@@ -1,0 +1,25 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/v1/ask",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "matches": "Bearer .*invalid_signature.*"
+      }
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "error": "Authentication failed",
+      "message": "Invalid or expired JWT token",
+      "code": "AUTH_INVALID_TOKEN"
+    }
+  }
+}

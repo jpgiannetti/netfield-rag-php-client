@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/v1/stream/ask",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive"
+    },
+    "transformers": ["response-template"],
+    "body": "data: {\"type\":\"start\",\"question\":\"{{ request.body.question }}\",\"tenant_id\":\"test-tenant\"}\n\ndata: {\"type\":\"content\",\"content\":\"Based on the documents, \"}\n\ndata: {\"type\":\"content\",\"content\":\"here is the answer to your question. \"}\n\ndata: {\"type\":\"content\",\"content\":\"The RAG system found relevant information.\"}\n\ndata: {\"type\":\"documents\",\"retrieved_documents\":[{\"document_id\":\"doc-1\",\"title\":\"Technical Documentation\",\"score\":0.95}]}\n\ndata: {\"type\":\"confidence\",\"confidence\":0.92,\"confidence_level\":\"very_high\"}\n\ndata: {\"type\":\"end\",\"processing_time\":1.45,\"status\":\"success\"}\n\n"
+  }
+}

@@ -1,0 +1,14 @@
+parameters:
+    level: 7
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - tests/bootstrap.php
+    ignoreErrors:
+        # Ignore specific PHPUnit related errors
+        - '#Call to an undefined method PHPUnit\\Framework\\MockObject\\MockObject::#'
+        # Ignore JWT library related warnings
+        - '#Parameter .* of method Firebase\\JWT\\JWT::.* expects .*, .* given#'
+    checkGenericClassInNonGenericObjectType: false
+    reportUnmatchedIgnoredErrors: false
