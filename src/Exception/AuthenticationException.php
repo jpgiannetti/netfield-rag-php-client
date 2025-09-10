@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RagApi\PhpClient\Exception;
+namespace Netfield\RagClient\Exception;
 
 class AuthenticationException extends RagApiException
 {

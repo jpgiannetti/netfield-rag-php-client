@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace RagApi\PhpClient\Tests\Unit\Auth;
+namespace Netfield\RagClient\Tests\Unit\Auth;
 
 use PHPUnit\Framework\TestCase;
-use RagApi\PhpClient\Auth\JwtAuthenticator;
-use RagApi\PhpClient\Exception\AuthenticationException;
+use Netfield\RagClient\Auth\JwtAuthenticator;
+use Netfield\RagClient\Exception\AuthenticationException;
 
 class JwtAuthenticatorTest extends TestCase
 {

@@ -5,9 +5,9 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use RagApi\PhpClient\RagClientFactory;
-use RagApi\PhpClient\Models\Request\AskRequest;
-use RagApi\PhpClient\Exception\RagApiException;
+use Netfield\RagClient\RagClientFactory;
+use Netfield\RagClient\Models\Request\AskRequest;
+use Netfield\RagClient\Exception\RagApiException;
 
 try {
     // Créer le client (utilise les variables d'environnement ou valeurs par défaut)

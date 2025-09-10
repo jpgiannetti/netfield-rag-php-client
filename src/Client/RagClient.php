@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace RagApi\PhpClient\Client;
+namespace Netfield\RagClient\Client;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use RagApi\PhpClient\Auth\JwtAuthenticator;
-use RagApi\PhpClient\Exception\RagApiException;
-use RagApi\PhpClient\Models\Request\AskRequest;
-use RagApi\PhpClient\Models\Request\IndexDocumentRequest;
-use RagApi\PhpClient\Models\Request\BulkIndexRequest;
-use RagApi\PhpClient\Models\Response\AskResponse;
-use RagApi\PhpClient\Models\Response\IndexResponse;
-use RagApi\PhpClient\Models\Response\BulkIndexResponse;
-use RagApi\PhpClient\Models\Response\HealthResponse;
+use Netfield\RagClient\Auth\JwtAuthenticator;
+use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Models\Request\AskRequest;
+use Netfield\RagClient\Models\Request\IndexDocumentRequest;
+use Netfield\RagClient\Models\Request\BulkIndexRequest;
+use Netfield\RagClient\Models\Response\AskResponse;
+use Netfield\RagClient\Models\Response\IndexResponse;
+use Netfield\RagClient\Models\Response\BulkIndexResponse;
+use Netfield\RagClient\Models\Response\HealthResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 

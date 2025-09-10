@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace RagApi\PhpClient\Tests\Unit\Models\Response;
+namespace Netfield\RagClient\Tests\Unit\Models\Response;
 
 use PHPUnit\Framework\TestCase;
-use RagApi\PhpClient\Models\Response\AskResponse;
+use Netfield\RagClient\Models\Response\AskResponse;
 
 class AskResponseTest extends TestCase
 {

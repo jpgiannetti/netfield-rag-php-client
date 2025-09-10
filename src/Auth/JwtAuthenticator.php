@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace RagApi\PhpClient\Auth;
+namespace Netfield\RagClient\Auth;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use RagApi\PhpClient\Exception\AuthenticationException;
+use Netfield\RagClient\Exception\AuthenticationException;
 
 class JwtAuthenticator
 {

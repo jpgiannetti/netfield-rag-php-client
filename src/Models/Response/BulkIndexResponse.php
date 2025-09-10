@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RagApi\PhpClient\Models\Response;
+namespace Netfield\RagClient\Models\Response;
 
 class BulkIndexResponse
 {

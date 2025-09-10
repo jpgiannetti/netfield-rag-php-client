@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace RagApi\PhpClient\Tests\Unit\Models\Request;
+namespace Netfield\RagClient\Tests\Unit\Models\Request;
 
 use PHPUnit\Framework\TestCase;
-use RagApi\PhpClient\Models\Request\IndexDocumentRequest;
-use RagApi\PhpClient\Models\Request\DocumentInfo;
-use RagApi\PhpClient\Exception\RagApiException;
+use Netfield\RagClient\Models\Request\IndexDocumentRequest;
+use Netfield\RagClient\Models\Request\DocumentInfo;
+use Netfield\RagClient\Exception\RagApiException;
 
 class IndexDocumentRequestTest extends TestCase
 {

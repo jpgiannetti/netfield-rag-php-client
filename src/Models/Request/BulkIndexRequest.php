@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace RagApi\PhpClient\Models\Request;
+namespace Netfield\RagClient\Models\Request;
 
-use RagApi\PhpClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\RagApiException;
 
 class BulkIndexRequest
 {

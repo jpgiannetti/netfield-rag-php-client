@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace RagApi\PhpClient\Tests\Unit\Models\Request;
+namespace Netfield\RagClient\Tests\Unit\Models\Request;
 
 use PHPUnit\Framework\TestCase;
-use RagApi\PhpClient\Models\Request\AskRequest;
-use RagApi\PhpClient\Exception\RagApiException;
+use Netfield\RagClient\Models\Request\AskRequest;
+use Netfield\RagClient\Exception\RagApiException;
 
 class AskRequestTest extends TestCase
 {

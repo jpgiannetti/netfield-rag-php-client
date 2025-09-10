@@ -7,8 +7,8 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use RagApi\PhpClient\RagClientFactory;
-use RagApi\PhpClient\Auth\JwtAuthenticator;
+use Netfield\RagClient\RagClientFactory;
+use Netfield\RagClient\Auth\JwtAuthenticator;
 
 echo "🧪 Démo des tests PHP RAG Client\n";
 echo str_repeat("=", 50) . "\n\n";

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace RagApi\PhpClient;
+namespace Netfield\RagClient;
 
 use GuzzleHttp\Client;
-use RagApi\PhpClient\Auth\JwtAuthenticator;
-use RagApi\PhpClient\Client\RagClient;
+use Netfield\RagClient\Auth\JwtAuthenticator;
+use Netfield\RagClient\Client\RagClient;
 use Psr\Log\LoggerInterface;
 
 /**

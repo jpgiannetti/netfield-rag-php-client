@@ -5,9 +5,9 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use RagApi\PhpClient\RagClientFactory;
-use RagApi\PhpClient\Models\Request\{IndexDocumentRequest, BulkIndexRequest, DocumentInfo};
-use RagApi\PhpClient\Exception\RagApiException;
+use Netfield\RagClient\RagClientFactory;
+use Netfield\RagClient\Models\Request\{IndexDocumentRequest, BulkIndexRequest, DocumentInfo};
+use Netfield\RagClient\Exception\RagApiException;
 
 try {
     // Configuration
@@ -132,7 +132,7 @@ try {
         
         foreach ($testQuestions as $question) {
             try {
-                $askRequest = new \RagApi\PhpClient\Models\Request\AskRequest($question, 2);
+                $askRequest = new \Netfield\RagClient\Models\Request\AskRequest($question, 2);
                 $askResponse = $client->ask($askRequest);
                 
                 if ($askResponse->isSuccessful()) {

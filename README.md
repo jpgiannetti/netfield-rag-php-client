@@ -1,495 +1,314 @@
-# Client PHP pour l'API RAG
+# Netfield RAG PHP Client
 
-Une bibliothèque PHP moderne et robuste pour interagir avec le système RAG (Retrieval-Augmented Generation) pour la recherche et l'indexation de documents.
+[![Latest Stable Version](https://poser.pugx.org/netfield/rag-client/v/stable)](https://packagist.org/packages/netfield/rag-client)
+[![License](https://poser.pugx.org/netfield/rag-client/license)](https://packagist.org/packages/netfield/rag-client)
+[![PHP Version](https://img.shields.io/badge/php-%3E%3D8.0-blue)](https://packagist.org/packages/netfield/rag-client)
 
-## 🚀 Fonctionnalités
+Un client PHP moderne pour l'API Netfield RAG - Système de Questions-Réponses intelligent sur documents.
 
-- ✅ **Recherche intelligente** : Questions en langage naturel avec réponses contextualisées
-- ✅ **Indexation de documents** : Ajout et mise à jour de documents avec métadonnées
-- ✅ **Indexation en lot** : Traitement efficace de multiples documents
-- ✅ **Streaming** : Réponses en temps réel via Server-Sent Events
-- ✅ **Authentication JWT** : Sécurité et isolation multi-tenant
-- ✅ **Gestion d'erreurs** : Exceptions typées et messages détaillés
-- ✅ **Logging** : Support PSR-3 pour l'observabilité
-- ✅ **Configuration flexible** : Client HTTP personnalisable
+## 🚀 Installation
 
-## 📦 Installation
+### Via Composer (Recommandé)
 
 ```bash
-composer require ragapi/php-client
+composer require netfield/rag-client
 ```
 
-### Prérequis
+### Manuel (pour développement)
 
-- PHP 8.0 ou supérieur
-- Extensions PHP : `json`, `curl`
-- Service RAG API accessible
+```bash
+git clone https://github.com/jpgiannetti/netfield-rag.git
+cd netfield-rag/clients/php
+composer install
+```
 
-## 🔧 Configuration rapide
+## 📖 Usage Rapide
 
-### 1. Initialisation du client
+### 1. Configuration Simple
 
 ```php
 <?php
-use RagApi\PhpClient\Client\RagClient;
-use RagApi\PhpClient\Auth\JwtAuthenticator;
+require 'vendor/autoload.php';
 
-// Avec token JWT existant
-$client = new RagClient(
-    baseUrl: 'http://localhost:8888',
-    jwtToken: 'your-jwt-token-here'
+use Netfield\RagClient\RagClientFactory;
+
+// Créer le client avec un token JWT
+$client = RagClientFactory::create(
+    'http://localhost:8888/api/v1', 
+    'your-jwt-token'
 );
 
-// Avec génération d'un token de test
-$testToken = JwtAuthenticator::generateTestToken('my-tenant-id');
-$client = new RagClient('http://localhost:8888', $testToken);
-```
-
-### 2. Premier exemple - Recherche simple
-
-```php
-<?php
-use RagApi\PhpClient\Models\Request\AskRequest;
-
-try {
-    // Créer une requête de recherche
-    $askRequest = new AskRequest(
-        question: "Quels sont les documents sur les factures ?",
-        limit: 5
-    );
-
-    // Exécuter la recherche
-    $response = $client->ask($askRequest);
-
-    if ($response->isSuccessful()) {
-        echo "Réponse: " . $response->getAnswer() . "\n";
-        echo "Confiance: " . $response->getConfidenceLevel() . "\n";
-        echo "Documents trouvés: " . count($response->getRetrievedDocuments()) . "\n";
-    }
-} catch (\RagApi\PhpClient\Exception\RagApiException $e) {
-    echo "Erreur: " . $e->getMessage() . "\n";
-}
-```
-
-## 📖 Guide d'utilisation complet
-
-### Recherche de documents
-
-#### Recherche basique
-
-```php
-use RagApi\PhpClient\Models\Request\AskRequest;
-
-$request = new AskRequest("Comment calculer la TVA ?");
-$response = $client->ask($request);
-
-echo $response->getAnswer();
-```
-
-#### Recherche avec filtres
-
-```php
-$request = new AskRequest(
-    question: "Factures de janvier 2024",
-    limit: 10,
-    filters: [
-        'type' => 'facture',
-        'date_range' => '2024-01-01:2024-01-31'
-    ]
+// Ou créer avec un token de test
+$client = RagClientFactory::createWithTestToken(
+    'http://localhost:8888/api/v1',
+    'test_client'
 );
-
-$response = $client->ask($request);
 ```
 
-#### Recherche en streaming
+### 2. Indexer un Document
 
 ```php
-$request = new AskRequest("Résumé des contrats en cours");
+use Netfield\RagClient\Models\Request\IndexDocumentRequest;
+use Netfield\RagClient\Models\Request\DocumentInfo;
 
-foreach ($client->askStream($request) as $chunk) {
-    if (isset($chunk['content'])) {
-        echo $chunk['content'];
-        flush(); // Afficher immédiatement
-    }
-}
-```
-
-### Indexation de documents
-
-#### Document simple
-
-```php
-use RagApi\PhpClient\Models\Request\IndexDocumentRequest;
-use RagApi\PhpClient\Models\Request\DocumentInfo;
-
-// Informations du document
-$documentInfo = new DocumentInfo(
-    title: "Facture Client ABC",
-    creationDate: "2024-08-01 19:44:00",
-    revision: 1,
-    final: true,
-    nbPages: 3
-);
-
-// Requête d'indexation
 $request = new IndexDocumentRequest(
-    documentId: "doc-123",
-    tenantId: "tenant-001", 
-    documentInfo: $documentInfo,
-    content: "Contenu OCR du document...",
+    document_id: 'doc_001',
+    client_id: 'my_client',
+    content: 'Contenu du document à indexer...',
+    document_info: new DocumentInfo(
+        title: 'Mon Document', 
+        creation_date: '2025-01-15 10:30:00'
+    ),
     metadata: [
-        'type' => 'facture',
-        'client' => 'ABC Corp',
-        'amount' => 1500.00
+        'type' => 'guide',
+        'category' => 'documentation'
     ]
 );
-
-$response = $client->indexDocument($request);
-
-if ($response->isSuccessful()) {
-    echo "Document indexé: " . $response->getDocumentId();
-}
-```
-
-#### Indexation en lot
-
-```php
-use RagApi\PhpClient\Models\Request\BulkIndexRequest;
-
-$documents = [];
-
-// Préparer plusieurs documents
-for ($i = 1; $i <= 10; $i++) {
-    $docInfo = new DocumentInfo(
-        title: "Document $i",
-        creationDate: date('Y-m-d H:i:s')
-    );
-    
-    $documents[] = new IndexDocumentRequest(
-        documentId: "doc-$i",
-        tenantId: "tenant-001",
-        documentInfo: $docInfo,
-        content: "Contenu du document $i..."
-    );
-}
-
-// Indexation en lot
-$bulkRequest = new BulkIndexRequest("tenant-001", $documents);
-$response = $client->bulkIndexDocuments($bulkRequest);
-
-echo sprintf(
-    "Indexation: %d/%d documents traités (%.1f%% succès)",
-    $response->getIndexedSuccessfully(),
-    $response->getTotalDocuments(), 
-    $response->getSuccessRate()
-);
-
-// Gérer les erreurs
-if ($response->hasErrors()) {
-    foreach ($response->getErrors() as $error) {
-        echo "Erreur sur {$error['document_id']}: {$error['error']}\n";
-    }
-}
-```
-
-### Gestion des erreurs
-
-```php
-use RagApi\PhpClient\Exception\RagApiException;
-use RagApi\PhpClient\Exception\AuthenticationException;
 
 try {
-    $response = $client->ask($askRequest);
-} catch (AuthenticationException $e) {
-    // Problème d'authentification JWT
-    echo "Erreur d'authentification: " . $e->getMessage();
-} catch (RagApiException $e) {
-    // Autres erreurs de l'API
-    echo "Erreur API: " . $e->getMessage();
+    $response = $client->indexDocument($request);
+    echo "Document indexé: {$response->document_id}\n";
+} catch (Exception $e) {
+    echo "Erreur: {$e->getMessage()}\n";
+}
+```
+
+### 3. Effectuer une Recherche
+
+```php
+use Netfield\RagClient\Models\Request\AskRequest;
+
+$question = new AskRequest(
+    question: 'Comment configurer le système ?',
+    limit: 5,
+    filters: ['type' => 'guide']
+);
+
+try {
+    $response = $client->ask($question);
     
-    if ($context = $e->getContext()) {
-        print_r($context); // Détails supplémentaires
-    }
-} catch (\Exception $e) {
-    // Erreurs génériques
-    echo "Erreur inattendue: " . $e->getMessage();
+    echo "Réponse: {$response->answer}\n";
+    echo "Confiance: {$response->confidence_score}\n";
+    echo "Sources: " . count($response->sources) . " documents\n";
+} catch (Exception $e) {
+    echo "Erreur: {$e->getMessage()}\n";
 }
 ```
 
-### Mise à jour et suppression
-
-#### Mise à jour d'un document
+### 4. Configuration via Variables d'Environnement
 
 ```php
-// Préparer les nouvelles données
-$updatedInfo = new DocumentInfo(
-    title: "Facture Client ABC - Modifiée",
-    creationDate: "2024-08-01 19:44:00",
-    revision: 2
-);
+// .env
+RAG_API_URL=http://localhost:8888/api/v1
+RAG_JWT_TOKEN=your-jwt-token
+# OU
+RAG_TENANT_ID=test_client
+RAG_JWT_SECRET=your-secret-key
 
-$updateRequest = new IndexDocumentRequest(
-    documentId: "doc-123",
-    tenantId: "tenant-001",
-    documentInfo: $updatedInfo,
-    content: "Nouveau contenu OCR...",
-    metadata: ['status' => 'updated']
-);
-
-$response = $client->updateDocument("doc-123", $updateRequest);
+// PHP
+$client = RagClientFactory::createFromEnv();
 ```
 
-#### Suppression d'un document
+## 🔧 Fonctionnalités Avancées
+
+### Configuration Personnalisée
 
 ```php
-$result = $client->deleteDocument("doc-123");
-echo "Document supprimé: " . $result['status'];
-```
+use GuzzleHttp\Client;
+use Monolog\Logger;
 
-## 🔐 Authentification avancée
-
-### Génération de tokens JWT
-
-```php
-use RagApi\PhpClient\Auth\JwtAuthenticator;
-
-// Token de production (nécessite la clé secrète)
-$token = JwtAuthenticator::generateTestToken(
-    tenantId: 'prod-tenant',
-    secretKey: 'your-production-secret-key',
-    expirationHours: 8
-);
-
-// Validation du token
-$auth = new JwtAuthenticator($token);
-if ($auth->isTokenValid()) {
-    echo "Token valide pour: " . $auth->getTenantId();
-} else {
-    echo "Token expiré ou invalide";
-}
-
-// Récupération du payload complet
-$payload = $auth->getTokenPayload();
-echo "Scopes: " . implode(', ', $payload['scopes']);
-echo "Expire: " . date('Y-m-d H:i:s', $payload['exp']);
-```
-
-### Configuration personnalisée du client HTTP
-
-```php
-use GuzzleHttp\Client as GuzzleClient;
-
-// Client personnalisé avec proxy
-$httpClient = new GuzzleClient([
-    'timeout' => 60,
-    'proxy' => 'http://proxy.company.com:8080',
-    'verify' => '/path/to/cacert.pem',
-    'headers' => [
-        'User-Agent' => 'MyApp/1.0'
-    ]
+$httpClient = new Client([
+    'timeout' => 30,
+    'verify' => false,  // Pour environnements de test
 ]);
 
-$ragClient = new RagClient(
-    baseUrl: 'https://rag-api.company.com',
-    jwtToken: $token,
-    httpClient: $httpClient
+$logger = new Logger('rag-client');
+
+$client = RagClientFactory::createCustom(
+    baseUrl: 'http://localhost:8888/api/v1',
+    jwtToken: 'your-token',
+    httpOptions: ['timeout' => 30],
+    logger: $logger
 );
 ```
 
-## 📊 Monitoring et logging
+### Indexation en Lot
 
-### Avec Monolog
+```php
+use Netfield\RagClient\Models\Request\BulkIndexRequest;
+
+$documents = [
+    new IndexDocumentRequest('doc1', 'client1', 'Contenu 1...', /* ... */),
+    new IndexDocumentRequest('doc2', 'client1', 'Contenu 2...', /* ... */),
+];
+
+$bulkRequest = new BulkIndexRequest($documents);
+$response = $client->bulkIndex($bulkRequest);
+
+echo "Indexés: {$response->successful_count}/{$response->total_count}\n";
+```
+
+### Vérification de Santé
+
+```php
+$health = $client->healthCheck();
+
+if ($health->status === 'healthy') {
+    echo "API disponible ✅\n";
+    echo "Version: {$health->version}\n";
+} else {
+    echo "API indisponible ❌\n";
+}
+```
+
+## 🧪 Tests
+
+### Lancer les Tests
+
+```bash
+# Tests unitaires (rapides)
+composer test
+
+# Tests avec couverture
+composer test -- --coverage-html coverage/
+
+# Analyse statique
+composer phpstan
+
+# Vérification du style
+composer cs-check
+composer cs-fix
+```
+
+### Tests avec Docker
+
+```bash
+# Environnement de test complet
+docker compose -f docker-compose.test.yml up -d
+
+# Tests unitaires
+docker compose -f docker-compose.test.yml exec php-test ./vendor/bin/phpunit --testsuite "Unit Tests"
+
+# Tests d'intégration (nécessite l'API)
+docker compose -f docker-compose.test.yml exec php-test ./vendor/bin/phpunit --testsuite "Integration Tests"
+```
+
+## 🔒 Authentification
+
+### Générer un Token JWT
+
+```php
+use Netfield\RagClient\Auth\JwtAuthenticator;
+
+$token = JwtAuthenticator::generateTestToken(
+    tenantId: 'my_client',
+    secretKey: 'your-secret-key',
+    scopes: ['read', 'write'],
+    confidentialityLevels: ['public', 'internal']
+);
+```
+
+### Configuration Avancée
+
+```php
+$client = new RagClient(
+    baseUrl: 'https://api.example.com/rag',
+    jwtToken: $token,
+    httpClient: new Client([
+        'headers' => [
+            'User-Agent' => 'MyApp/1.0',
+            'Accept' => 'application/json'
+        ],
+        'timeout' => 60,
+        'connect_timeout' => 10
+    ])
+);
+```
+
+## 🛠️ Développement
+
+### Structure du Projet
+
+```
+src/
+├── Auth/              # Authentification JWT
+├── Client/            # Client principal
+├── Exception/         # Exceptions personnalisées
+├── Models/            # Modèles de données
+│   ├── Request/       # Requêtes API
+│   └── Response/      # Réponses API
+└── RagClientFactory.php  # Factory principal
+```
+
+### Contribuer
+
+1. Fork le projet
+2. Créer une branche (`git checkout -b feature/nouvelle-fonctionnalite`)
+3. Committer (`git commit -am 'Ajoute nouvelle fonctionnalité'`)
+4. Pousser (`git push origin feature/nouvelle-fonctionnalite`)
+5. Créer une Pull Request
+
+## 📋 Configuration Requise
+
+- **PHP**: 8.0 ou supérieur
+- **Extensions**: json, curl, mbstring
+- **Dépendances**: 
+  - guzzlehttp/guzzle ^7.0
+  - firebase/php-jwt ^6.0
+  - psr/log ^1.0|^2.0|^3.0
+
+## 🐛 Débogage
+
+### Activer les Logs
 
 ```php
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
 $logger = new Logger('rag-client');
-$logger->pushHandler(new StreamHandler('rag-client.log', Logger::INFO));
+$logger->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 
-$client = new RagClient(
-    baseUrl: 'http://localhost:8888',
+$client = RagClientFactory::createCustom(
+    baseUrl: 'http://localhost:8888/api/v1',
     jwtToken: $token,
-    httpClient: null,
     logger: $logger
 );
-
-// Les requêtes sont maintenant loggées automatiquement
-$response = $client->ask($askRequest);
 ```
 
-### Surveillance de la santé
+### Gestion des Erreurs
 
 ```php
-// Vérification de l'état du service
-$health = $client->health();
+use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\AuthenticationException;
 
-if ($health->isHealthy()) {
-    echo "Service opérationnel\n";
-} else {
-    echo "Service en panne: " . $health->getStatus() . "\n";
-    print_r($health->getDetails());
-}
-
-// Récupération des métriques
-$thresholds = $client->getConfidenceThresholds();
-echo "Seuil de confiance élevé: " . $thresholds['high'];
-
-// Statistiques d'indexation
-$stats = $client->getIndexingStats('tenant-001');
-echo "Documents indexés: " . $stats['total_documents'];
-```
-
-## ⚡ Exemples complets
-
-### Script d'indexation de fichiers
-
-```php
-#!/usr/bin/env php
-<?php
-require 'vendor/autoload.php';
-
-use RagApi\PhpClient\Client\RagClient;
-use RagApi\PhpClient\Auth\JwtAuthenticator;
-use RagApi\PhpClient\Models\Request\{IndexDocumentRequest, DocumentInfo, BulkIndexRequest};
-
-$token = JwtAuthenticator::generateTestToken('my-tenant');
-$client = new RagClient('http://localhost:8888', $token);
-
-$documentsDir = '/path/to/documents';
-$documents = [];
-
-foreach (glob($documentsDir . '/*.txt') as $file) {
-    $content = file_get_contents($file);
-    $basename = basename($file, '.txt');
-    
-    $docInfo = new DocumentInfo(
-        title: $basename,
-        creationDate: date('Y-m-d H:i:s', filemtime($file))
-    );
-    
-    $documents[] = new IndexDocumentRequest(
-        documentId: $basename,
-        tenantId: 'my-tenant',
-        documentInfo: $docInfo,
-        content: $content
-    );
-}
-
-if (!empty($documents)) {
-    $bulkRequest = new BulkIndexRequest('my-tenant', $documents);
-    $response = $client->bulkIndexDocuments($bulkRequest);
-    
-    echo sprintf(
-        "Indexé %d/%d documents (%.1f%% succès)\n",
-        $response->getIndexedSuccessfully(),
-        $response->getTotalDocuments(),
-        $response->getSuccessRate()
-    );
+try {
+    $response = $client->ask($question);
+} catch (AuthenticationException $e) {
+    echo "Erreur d'authentification: {$e->getMessage()}\n";
+} catch (RagApiException $e) {
+    echo "Erreur API: {$e->getMessage()}\n";
+    echo "Code: {$e->getCode()}\n";
+} catch (Exception $e) {
+    echo "Erreur générale: {$e->getMessage()}\n";
 }
 ```
 
-### Interface de recherche interactive
+## 📚 Documentation
 
-```php
-#!/usr/bin/env php
-<?php
-require 'vendor/autoload.php';
-
-use RagApi\PhpClient\Client\RagClient;
-use RagApi\PhpClient\Models\Request\AskRequest;
-
-$client = new RagClient('http://localhost:8888', $argv[1] ?? '');
-
-while (true) {
-    echo "\n🔍 Question (ou 'quit' pour sortir): ";
-    $question = trim(fgets(STDIN));
-    
-    if ($question === 'quit') break;
-    if (empty($question)) continue;
-    
-    try {
-        $request = new AskRequest($question);
-        $response = $client->ask($request);
-        
-        if ($response->isSuccessful()) {
-            echo "\n✅ Réponse ({$response->getConfidenceLevel()}):\n";
-            echo $response->getAnswer() . "\n";
-            
-            $docs = $response->getRetrievedDocuments();
-            if (!empty($docs)) {
-                echo "\n📄 Sources (" . count($docs) . "):\n";
-                foreach (array_slice($docs, 0, 3) as $i => $doc) {
-                    echo sprintf(
-                        "%d. %s (score: %.2f)\n",
-                        $i + 1,
-                        $doc['title'],
-                        $doc['score']
-                    );
-                }
-            }
-        }
-    } catch (Exception $e) {
-        echo "\n❌ Erreur: " . $e->getMessage() . "\n";
-    }
-}
-```
-
-## 🧪 Tests et développement
-
-### Tests unitaires
-
-```bash
-# Installation des dépendances de développement
-composer install --dev
-
-# Exécution des tests
-composer test
-
-# Analyse statique
-composer phpstan
-
-# Vérification du style de code
-composer cs-check
-composer cs-fix
-```
-
-### Configuration pour développement
-
-```php
-// .env ou configuration
-RAG_API_URL=http://localhost:8888
-RAG_JWT_SECRET=super-secret-jwt-key-change-in-production-2024
-RAG_TENANT_ID=dev-tenant
-
-// Configuration de test
-$client = new RagClient(
-    $_ENV['RAG_API_URL'],
-    JwtAuthenticator::generateTestToken($_ENV['RAG_TENANT_ID'])
-);
-```
-
-## 🔗 API de référence
-
-### Classes principales
-
-- **`RagClient`** : Client principal pour toutes les opérations
-- **`JwtAuthenticator`** : Gestion de l'authentification JWT
-- **`AskRequest`** / **`AskResponse`** : Recherche de documents
-- **`IndexDocumentRequest`** / **`IndexResponse`** : Indexation simple
-- **`BulkIndexRequest`** / **`BulkIndexResponse`** : Indexation en lot
-
-### Exceptions
-
-- **`RagApiException`** : Erreur générale de l'API
-- **`AuthenticationException`** : Problème d'authentification JWT
-
-## 📞 Support et contribution
-
-- **Documentation API** : [http://localhost:8888/docs](http://localhost:8888/docs)
-- **Issues** : Signalez les bugs via les issues GitHub
-- **Contributions** : Pull requests bienvenues
+- [Documentation complète](https://github.com/jpgiannetti/netfield-rag)
+- [Guide d'API](https://github.com/jpgiannetti/netfield-rag/blob/main/docs/api/reference.md)
+- [Exemples complets](https://github.com/jpgiannetti/netfield-rag/tree/main/clients/php/examples)
 
 ## 📄 Licence
 
-MIT License - voir le fichier [LICENSE](LICENSE) pour plus de détails.
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+## 🤝 Support
+
+- **Issues**: [GitHub Issues](https://github.com/jpgiannetti/netfield-rag/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/jpgiannetti/netfield-rag/discussions)
+- **Email**: jpgiannetti@users.noreply.github.com
+
+---
+
+Développé avec ❤️ par [Jean-Philippe Giannetti](https://github.com/jpgiannetti)

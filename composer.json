@@ -4,13 +4,17 @@
     "type": "library",
     "license": "MIT",
     "keywords": ["rag", "ai", "llm", "document", "search", "api", "client", "netfield"],
-    "homepage": "https://github.com/netfield/rag",
+    "homepage": "https://github.com/jpgiannetti/netfield-rag",
     "authors": [
         {
-            "name": "Netfield Team",
-            "email": "info@netfield.com"
+            "name": "Jean-Philippe Giannetti",
+            "email": "jpgiannetti@users.noreply.github.com"
         }
     ],
+    "support": {
+        "issues": "https://github.com/jpgiannetti/netfield-rag/issues",
+        "source": "https://github.com/jpgiannetti/netfield-rag"
+    },
     "require": {
         "php": ">=8.0",
         "guzzlehttp/guzzle": "^7.0",
