@@ -75,12 +75,12 @@ Dans le `composer.json` de votre projet, vous avez plusieurs options :
 {
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/jpgiannetti/netfield-rag"
+            "type": "git",
+            "url": "https://github.com/jpgiannetti/netfield-rag.git"
         }
     ],
     "require": {
-        "jpgiannetti/rag-client": "^1.0"
+        "jpgiannetti/netfield-rag": "^1.0"
     }
 }
 ```
@@ -90,12 +90,12 @@ Dans le `composer.json` de votre projet, vous avez plusieurs options :
 {
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://YOUR_GITHUB_TOKEN@github.com/jpgiannetti/netfield-rag"
+            "type": "git",
+            "url": "https://YOUR_GITHUB_TOKEN@github.com/jpgiannetti/netfield-rag.git"
         }
     ],
     "require": {
-        "jpgiannetti/rag-client": "^1.0"
+        "jpgiannetti/netfield-rag": "^1.0"
     }
 }
 ```
@@ -105,12 +105,12 @@ Dans le `composer.json` de votre projet, vous avez plusieurs options :
 {
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://x-access-token:YOUR_GITHUB_TOKEN@github.com/jpgiannetti/netfield-rag"
+            "type": "git",
+            "url": "https://x-access-token:YOUR_GITHUB_TOKEN@github.com/jpgiannetti/netfield-rag.git"
         }
     ],
     "require": {
-        "jpgiannetti/rag-client": "^1.0"
+        "jpgiannetti/netfield-rag": "^1.0"
     }
 }
 ```
@@ -215,7 +215,7 @@ jobs:
       - name: Configure repository with token
         run: |
           # Remplacer l'URL dans composer.json avec le token
-          composer config repositories.github vcs https://${{ secrets.GITHUB_TOKEN }}@github.com/jpgiannetti/netfield-rag
+          composer config repositories.github git https://${{ secrets.GITHUB_TOKEN }}@github.com/jpgiannetti/netfield-rag.git
 
       - name: Install dependencies
         run: composer install
