@@ -1,8 +1,9 @@
 {
-    "name": "netfield/rag-client",
+    "name": "jpgiannetti/rag-client",
     "description": "PHP client library for Netfield RAG API - A production-ready RAG system for intelligent document Q&A",
     "type": "library",
     "license": "MIT",
+    "version": "1.0.0",
     "keywords": ["rag", "ai", "llm", "document", "search", "api", "client", "netfield"],
     "homepage": "https://github.com/jpgiannetti/netfield-rag",
     "authors": [
