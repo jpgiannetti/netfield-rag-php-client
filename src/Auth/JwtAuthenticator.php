@@ -97,6 +97,55 @@ class JwtAuthenticator
         return JWT::encode($payload, $secretKey, 'HS256');
     }
 
+    /**
+     * Génère un token admin de test
+     */
+    public static function generateAdminTestToken(
+        string $secretKey = 'super-secret-jwt-key-change-in-production-2024',
+        int $expirationHours = 24
+    ): string {
+        $now = time();
+        $exp = $now + ($expirationHours * 3600);
+
+        $payload = [
+            'sub' => 'admin_user_001',
+            'user_type' => 'admin',
+            'scopes' => ['read', 'write', 'admin'],
+            'confidentiality_levels' => ['public', 'internal', 'confidential', 'secret'],
+            'department' => 'IT',
+            'iss' => 'admin-system',
+            'iat' => $now,
+            'exp' => $exp,
+        ];
+
+        return JWT::encode($payload, $secretKey, 'HS256');
+    }
+
+    /**
+     * Génère un token organization de test
+     */
+    public static function generateOrganizationTestToken(
+        string $organizationId,
+        string $secretKey = 'super-secret-jwt-key-change-in-production-2024',
+        int $expirationHours = 24
+    ): string {
+        $now = time();
+        $exp = $now + ($expirationHours * 3600);
+
+        $payload = [
+            'sub' => 'organization_' . $organizationId,
+            'organization_id' => $organizationId,
+            'user_type' => 'organization',
+            'scopes' => ['read', 'write', 'manage_clients'],
+            'confidentiality_levels' => ['public', 'internal'],
+            'iss' => 'organization-system',
+            'iat' => $now,
+            'exp' => $exp,
+        ];
+
+        return JWT::encode($payload, $secretKey, 'HS256');
+    }
+
     private function validateToken(): void
     {
         if (empty($this->token)) {

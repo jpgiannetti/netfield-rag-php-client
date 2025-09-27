@@ -7,6 +7,8 @@ namespace Netfield\RagClient;
 use GuzzleHttp\Client;
 use Netfield\RagClient\Auth\JwtAuthenticator;
 use Netfield\RagClient\Client\RagClient;
+use Netfield\RagClient\Client\AdminClient;
+use Netfield\RagClient\Client\OrganizationClient;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -66,5 +68,44 @@ class RagClientFactory
         }
 
         throw new \InvalidArgumentException('Either RAG_JWT_TOKEN or RAG_TENANT_ID environment variable is required');
+    }
+
+    /**
+     * Crée un client Admin pour la gestion des organizations
+     */
+    public static function createAdminClient(string $baseUrl, string $adminJwtToken): AdminClient
+    {
+        return new AdminClient($baseUrl, $adminJwtToken);
+    }
+
+    /**
+     * Crée un client Admin avec token de test
+     */
+    public static function createAdminWithTestToken(
+        string $baseUrl,
+        string $secretKey = 'super-secret-jwt-key-change-in-production-2024'
+    ): AdminClient {
+        $token = JwtAuthenticator::generateAdminTestToken($secretKey);
+        return new AdminClient($baseUrl, $token);
+    }
+
+    /**
+     * Crée un client Organization pour la gestion des clients
+     */
+    public static function createOrganizationClient(string $baseUrl, string $organizationJwtToken): OrganizationClient
+    {
+        return new OrganizationClient($baseUrl, $organizationJwtToken);
+    }
+
+    /**
+     * Crée un client Organization avec token de test
+     */
+    public static function createOrganizationWithTestToken(
+        string $baseUrl,
+        string $organizationId,
+        string $secretKey = 'super-secret-jwt-key-change-in-production-2024'
+    ): OrganizationClient {
+        $token = JwtAuthenticator::generateOrganizationTestToken($organizationId, $secretKey);
+        return new OrganizationClient($baseUrl, $token);
     }
 }

@@ -281,4 +281,566 @@ class RagClient
             throw new RagApiException('Failed to get indexing stats: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
+
+    /**
+     * Valide des documents sans les indexer (dry-run)
+     */
+    public function validateDocuments(BulkIndexRequest $request): array
+    {
+        try {
+            $this->logger->info('Validating documents', ['count' => count($request->getDocuments())]);
+
+            $response = $this->httpClient->post($this->baseUrl . '/api/v1/index/validate', [
+                'headers' => $this->authenticator->getHeaders(),
+                'json' => $request->toArray(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            $this->logger->error('Document validation failed', ['error' => $e->getMessage()]);
+            throw new RagApiException('Failed to validate documents: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Classifie automatiquement un document
+     */
+    public function classifyDocument(string $content, ?string $title = null): array
+    {
+        try {
+            $this->logger->info('Classifying document', ['content_length' => strlen($content)]);
+
+            $payload = ['content' => $content];
+            if ($title !== null) {
+                $payload['title'] = $title;
+            }
+
+            $response = $this->httpClient->post($this->baseUrl . '/api/v1/classification/classify', [
+                'headers' => $this->authenticator->getHeaders(),
+                'json' => $payload,
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            $this->logger->error('Document classification failed', ['error' => $e->getMessage()]);
+            throw new RagApiException('Failed to classify document: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Extrait les métadonnées pour un type de document donné
+     */
+    public function extractMetadata(string $content, string $docType): array
+    {
+        try {
+            $this->logger->info('Extracting metadata', ['doc_type' => $docType]);
+
+            $response = $this->httpClient->post($this->baseUrl . '/api/v1/classification/extract-metadata', [
+                'headers' => $this->authenticator->getHeaders(),
+                'json' => [
+                    'content' => $content,
+                    'doc_type' => $docType,
+                ],
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            $this->logger->error('Metadata extraction failed', ['error' => $e->getMessage()]);
+            throw new RagApiException('Failed to extract metadata: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Récupère les informations sur la taxonomie
+     */
+    public function getTaxonomyInfo(): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/classification/taxonomy', [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get taxonomy info: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Récupère les champs filtrables pour un type de document
+     */
+    public function getFilterableFields(string $docType): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/classification/filterable-fields/' . urlencode($docType), [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get filterable fields: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Récupère la définition des champs de métadonnées communs
+     */
+    public function getCommonMetadataFields(): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/classification/common-metadata', [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get common metadata fields: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Récupère le rapport de validation d'un document
+     */
+    public function getDocumentValidationReport(string $documentId): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/validation/report/' . urlencode($documentId), [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get document validation report: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Récupère un résumé des validations
+     */
+    public function getValidationSummary(int $daysBack = 30): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/validation/summary?days_back=' . $daysBack, [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get validation summary: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Recherche les documents avec erreurs de validation
+     */
+    public function queryValidationReports(array $filters = []): array
+    {
+        try {
+            $this->logger->info('Querying validation reports', ['filters' => $filters]);
+
+            $response = $this->httpClient->post($this->baseUrl . '/api/v1/validation/query', [
+                'headers' => $this->authenticator->getHeaders(),
+                'json' => $filters,
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            $this->logger->error('Validation query failed', ['error' => $e->getMessage()]);
+            throw new RagApiException('Failed to query validation reports: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Récupère les erreurs par champ
+     */
+    public function getErrorsByField(?string $docType = null, int $limit = 10): array
+    {
+        try {
+            $queryParams = ['limit' => $limit];
+            if ($docType !== null) {
+                $queryParams['doc_type'] = $docType;
+            }
+
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/validation/errors/by-field?' . http_build_query($queryParams), [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get errors by field: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Nettoie les anciens rapports de validation (admin uniquement)
+     */
+    public function cleanupOldReports(int $daysToKeep = 90): array
+    {
+        try {
+            $this->logger->info('Cleaning up old validation reports', ['days_to_keep' => $daysToKeep]);
+
+            $response = $this->httpClient->delete($this->baseUrl . '/api/v1/validation/cleanup?days_to_keep=' . $daysToKeep, [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            $this->logger->error('Cleanup failed', ['error' => $e->getMessage()]);
+            throw new RagApiException('Failed to cleanup old reports: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Récupère les paramètres UI pour la gestion de confiance
+     */
+    public function getUISettings(): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/confidence/ui-settings', [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get UI settings: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Récupère les informations sur le modèle de calibration de confiance
+     */
+    public function getCalibrationInfo(): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/confidence/calibration-info', [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get calibration info: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Valide la confiance d'une réponse donnée
+     */
+    public function validateResponseConfidence(array $responseData): array
+    {
+        try {
+            $this->logger->info('Validating response confidence');
+
+            $response = $this->httpClient->post($this->baseUrl . '/api/v1/confidence/validate-response', [
+                'headers' => $this->authenticator->getHeaders(),
+                'json' => $responseData,
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            $this->logger->error('Confidence validation failed', ['error' => $e->getMessage()]);
+            throw new RagApiException('Failed to validate response confidence: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Récupère les métriques de confiance
+     */
+    public function getConfidenceMetrics(): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/confidence/metrics', [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get confidence metrics: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Récupère les métriques Prometheus
+     */
+    public function getPrometheusMetrics(): string
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/metrics', [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            return $response->getBody()->getContents();
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get Prometheus metrics: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Health check détaillé avec métriques système
+     */
+    public function getDetailedHealthCheck(): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/health/detailed', [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get detailed health check: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Récupère les informations d'une trace spécifique
+     */
+    public function getTraceInfo(string $traceId): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/traces/' . urlencode($traceId), [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get trace info: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Résumé des performances du système RAG
+     */
+    public function getPerformanceSummary(): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/performance/summary', [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get performance summary: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Test des alertes de monitoring
+     */
+    public function testMonitoringAlert(string $alertType): array
+    {
+        try {
+            $this->logger->info('Testing monitoring alert', ['alert_type' => $alertType]);
+
+            $response = $this->httpClient->post($this->baseUrl . '/api/v1/monitoring/alerts/test?alert_type=' . urlencode($alertType), [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            $this->logger->error('Alert test failed', ['error' => $e->getMessage()]);
+            throw new RagApiException('Failed to test monitoring alert: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Statut système global (sans authentification pour monitoring externe)
+     */
+    public function getSystemStatus(): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/system/status', [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get system status: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Récupère la liste des modèles disponibles dans Ollama
+     */
+    public function getAvailableModels(): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/ask/models', [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('Failed to get available models: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Test du pipeline RAG complet avec informations de debug
+     */
+    public function testRagPipeline(AskRequest $request): array
+    {
+        try {
+            $this->logger->info('Testing RAG pipeline', ['question' => substr($request->getQuestion(), 0, 100)]);
+
+            $response = $this->httpClient->post($this->baseUrl . '/api/v1/ask/test', [
+                'headers' => $this->authenticator->getHeaders(),
+                'json' => $request->toArray(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            $this->logger->error('RAG pipeline test failed', ['error' => $e->getMessage()]);
+            throw new RagApiException('Failed to test RAG pipeline: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Vérifie l'état de santé du système RAG complet
+     */
+    public function ragHealthCheck(): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/ask/health');
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RagApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            throw new RagApiException('RAG health check failed: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
 }
