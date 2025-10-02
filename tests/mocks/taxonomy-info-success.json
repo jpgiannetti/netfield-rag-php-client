@@ -1,0 +1,38 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/classification/taxonomy",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "document_types": [
+        {
+          "type": "guide",
+          "description": "User guides and documentation",
+          "metadata_fields": ["version", "category", "language"]
+        },
+        {
+          "type": "invoice",
+          "description": "Financial invoices",
+          "metadata_fields": ["invoice_number", "date", "amount", "currency"]
+        },
+        {
+          "type": "contract",
+          "description": "Legal contracts",
+          "metadata_fields": ["contract_number", "parties", "start_date", "end_date"]
+        }
+      ],
+      "total_types": 3,
+      "version": "1.0"
+    }
+  }
+}

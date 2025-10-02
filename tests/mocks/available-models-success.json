@@ -1,0 +1,35 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/ask/models",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "models": [
+        {
+          "name": "llama3",
+          "size": "7B",
+          "modified_at": "2024-07-01T10:00:00Z",
+          "available": true
+        },
+        {
+          "name": "mistral",
+          "size": "7B",
+          "modified_at": "2024-07-05T14:30:00Z",
+          "available": true
+        }
+      ],
+      "default_model": "llama3",
+      "ollama_version": "0.1.42"
+    }
+  }
+}

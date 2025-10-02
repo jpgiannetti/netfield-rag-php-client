@@ -1,0 +1,33 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/confidence/calibration-info",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "model_version": "1.0.0",
+      "training_date": "2024-07-15T10:00:00Z",
+      "feature_count": 15,
+      "calibration_method": "logistic_regression",
+      "accuracy_metrics": {
+        "precision": 0.89,
+        "recall": 0.87,
+        "f1_score": 0.88
+      },
+      "thresholds": {
+        "low": 0.3,
+        "medium": 0.6,
+        "high": 0.8
+      }
+    }
+  }
+}

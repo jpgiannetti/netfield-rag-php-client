@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/admin/status"
+  },
+  "response": {
+    "status": 403,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "error": "Insufficient permissions",
+      "message": "Admin role required to access this endpoint",
+      "required_role": "admin"
+    }
+  }
+}

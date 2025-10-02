@@ -1,0 +1,48 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/monitoring/health/detailed",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "status": "healthy",
+      "timestamp": "2024-08-01T19:44:00Z",
+      "uptime_seconds": 86400,
+      "components": {
+        "database": {
+          "status": "healthy",
+          "response_time_ms": 5,
+          "connections": {
+            "active": 3,
+            "max": 10
+          }
+        },
+        "weaviate": {
+          "status": "healthy",
+          "response_time_ms": 12,
+          "nodes": 1,
+          "shards": 3
+        },
+        "ollama": {
+          "status": "healthy",
+          "response_time_ms": 150,
+          "models_loaded": ["llama3", "mistral"]
+        }
+      },
+      "system": {
+        "cpu_usage_percent": 23.5,
+        "memory_usage_mb": 512,
+        "memory_total_mb": 2048
+      }
+    }
+  }
+}

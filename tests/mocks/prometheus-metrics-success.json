@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/monitoring/metrics",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8"
+    },
+    "body": "# HELP rag_queries_total Total number of RAG queries\n# TYPE rag_queries_total counter\nrag_queries_total{tenant_id=\"test_tenant\",confidence=\"high\"} 150\nrag_queries_total{tenant_id=\"test_tenant\",confidence=\"medium\"} 85\nrag_queries_total{tenant_id=\"test_tenant\",confidence=\"low\"} 23\n\n# HELP rag_query_duration_seconds RAG query duration in seconds\n# TYPE rag_query_duration_seconds histogram\nrag_query_duration_seconds_bucket{le=\"1.0\"} 45\nrag_query_duration_seconds_bucket{le=\"5.0\"} 180\nrag_query_duration_seconds_bucket{le=\"10.0\"} 240\nrag_query_duration_seconds_bucket{le=\"+Inf\"} 258\nrag_query_duration_seconds_sum 1842.5\nrag_query_duration_seconds_count 258\n\n# HELP rag_confidence_score RAG confidence score distribution\n# TYPE rag_confidence_score histogram\nrag_confidence_score_bucket{le=\"0.3\"} 23\nrag_confidence_score_bucket{le=\"0.6\"} 108\nrag_confidence_score_bucket{le=\"0.8\"} 208\nrag_confidence_score_bucket{le=\"1.0\"} 258\nrag_confidence_score_sum 187.4\nrag_confidence_score_count 258\n"
+  }
+}

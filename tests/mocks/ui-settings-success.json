@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/confidence/ui-settings",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "confidence_display_mode": "percentage",
+      "show_source_documents": true,
+      "max_sources_displayed": 5,
+      "highlight_low_confidence": true,
+      "thresholds": {
+        "low": 0.3,
+        "medium": 0.6,
+        "high": 0.8
+      }
+    }
+  }
+}

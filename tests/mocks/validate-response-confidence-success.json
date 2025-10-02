@@ -1,0 +1,30 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/v1/confidence/validate-response",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "is_valid": true,
+      "confidence_score": 0.85,
+      "confidence_level": "high",
+      "validation_details": {
+        "semantic_similarity": 0.88,
+        "source_quality": 0.90,
+        "answer_completeness": 0.82,
+        "factual_consistency": 0.85
+      },
+      "warnings": [],
+      "timestamp": "2024-08-01T19:44:00Z"
+    }
+  }
+}

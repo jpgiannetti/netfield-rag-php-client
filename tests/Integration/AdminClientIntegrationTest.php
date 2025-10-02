@@ -35,7 +35,14 @@ class AdminClientIntegrationTest extends TestCase
             $this->markTestIncomplete('Admin endpoints may require actual admin privileges');
         } catch (RagApiException $e) {
             // Expected if admin endpoints require real authentication
-            $this->assertStringContainsString('403', $e->getMessage());
+            // Check that error message mentions forbidden/403 or that exception code is 403
+            $message = $e->getMessage();
+            $hasCorrectError = str_contains($message, '403') ||
+                              str_contains($message, 'Forbidden') ||
+                              str_contains($message, 'Insufficient permissions') ||
+                              $e->getCode() === 403;
+
+            $this->assertTrue($hasCorrectError, 'Expected 403 Forbidden error, got: ' . $message);
             $this->markTestIncomplete('Admin endpoints require proper authentication - test structure is correct');
         }
     }

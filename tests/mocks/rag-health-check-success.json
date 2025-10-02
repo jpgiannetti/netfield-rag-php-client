@@ -1,0 +1,29 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/ask/health"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "status": "healthy",
+      "components": {
+        "ollama": {
+          "status": "available",
+          "models": ["llama3", "mistral"]
+        },
+        "weaviate": {
+          "status": "connected",
+          "version": "1.21.0"
+        },
+        "embeddings": {
+          "status": "ready"
+        }
+      },
+      "timestamp": "2024-08-01T19:44:00Z"
+    }
+  }
+}

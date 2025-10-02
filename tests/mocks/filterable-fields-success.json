@@ -1,0 +1,42 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/api/v1/classification/filterable-fields/.*",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "doc_type": "invoice",
+      "filterable_fields": [
+        {
+          "field": "invoice_number",
+          "type": "string",
+          "indexed": true
+        },
+        {
+          "field": "date",
+          "type": "date",
+          "indexed": true
+        },
+        {
+          "field": "amount",
+          "type": "number",
+          "indexed": true
+        },
+        {
+          "field": "currency",
+          "type": "string",
+          "indexed": true
+        }
+      ]
+    }
+  }
+}

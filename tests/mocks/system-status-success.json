@@ -1,0 +1,30 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/monitoring/system/status",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "status": "operational",
+      "version": "1.0.0",
+      "uptime_seconds": 345600,
+      "environment": "production",
+      "services": {
+        "api": "healthy",
+        "database": "healthy",
+        "weaviate": "healthy",
+        "ollama": "healthy"
+      },
+      "timestamp": "2024-08-01T19:44:00Z"
+    }
+  }
+}

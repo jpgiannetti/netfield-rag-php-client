@@ -1,0 +1,25 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/v1/index/validate",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "status": "valid",
+      "total_documents": 2,
+      "valid_documents": 2,
+      "invalid_documents": 0,
+      "errors": [],
+      "warnings": []
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/api/v1/validation/summary.*",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "period_days": 30,
+      "total_validations": 1250,
+      "successful_validations": 1100,
+      "failed_validations": 150,
+      "success_rate": 0.88,
+      "most_common_errors": [
+        {
+          "field": "document_info.creation_date",
+          "count": 45,
+          "error_type": "format_error"
+        },
+        {
+          "field": "metadata.type",
+          "count": 38,
+          "error_type": "invalid_value"
+        }
+      ],
+      "time_range": {
+        "from": "2024-07-01T00:00:00Z",
+        "to": "2024-08-01T00:00:00Z"
+      }
+    }
+  }
+}

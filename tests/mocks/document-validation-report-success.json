@@ -1,0 +1,41 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/api/v1/validation/report/.*",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "document_id": "doc_12345",
+      "validation_status": "passed",
+      "timestamp": "2024-08-01T19:44:00Z",
+      "checks": [
+        {
+          "check": "required_fields",
+          "status": "passed",
+          "details": "All required fields present"
+        },
+        {
+          "check": "data_types",
+          "status": "passed",
+          "details": "All fields have correct types"
+        },
+        {
+          "check": "value_ranges",
+          "status": "passed",
+          "details": "All values within acceptable ranges"
+        }
+      ],
+      "errors": [],
+      "warnings": []
+    }
+  }
+}

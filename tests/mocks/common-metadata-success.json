@@ -1,0 +1,46 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/classification/common-metadata",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "common_fields": [
+        {
+          "field": "title",
+          "type": "string",
+          "required": true,
+          "description": "Document title"
+        },
+        {
+          "field": "creation_date",
+          "type": "datetime",
+          "required": true,
+          "description": "Document creation date"
+        },
+        {
+          "field": "author",
+          "type": "string",
+          "required": false,
+          "description": "Document author"
+        },
+        {
+          "field": "language",
+          "type": "string",
+          "required": false,
+          "description": "Document language"
+        }
+      ],
+      "total_fields": 4
+    }
+  }
+}

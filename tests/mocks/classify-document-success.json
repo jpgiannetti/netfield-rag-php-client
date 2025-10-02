@@ -1,0 +1,31 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/v1/classification/classify",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "document_type": "guide",
+      "confidence": 0.92,
+      "suggested_metadata": {
+        "category": "technical",
+        "language": "en"
+      },
+      "alternative_types": [
+        {
+          "type": "manual",
+          "confidence": 0.78
+        }
+      ]
+    }
+  }
+}

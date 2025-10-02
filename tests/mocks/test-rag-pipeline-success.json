@@ -1,0 +1,48 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/v1/ask/test",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "pipeline_status": "success",
+      "stages": {
+        "query_processing": {
+          "status": "completed",
+          "duration_ms": 15
+        },
+        "retrieval": {
+          "status": "completed",
+          "duration_ms": 120,
+          "documents_found": 5
+        },
+        "reranking": {
+          "status": "completed",
+          "duration_ms": 45
+        },
+        "generation": {
+          "status": "completed",
+          "duration_ms": 850
+        },
+        "confidence_scoring": {
+          "status": "completed",
+          "duration_ms": 20,
+          "score": 0.87
+        }
+      },
+      "total_duration_ms": 1050,
+      "answer": "This is a test answer from the RAG pipeline",
+      "confidence_score": 0.87,
+      "sources": []
+    }
+  }
+}

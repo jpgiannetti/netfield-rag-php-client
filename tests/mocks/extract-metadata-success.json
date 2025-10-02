@@ -1,0 +1,29 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/v1/classification/extract-metadata",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "doc_type": "invoice",
+      "extracted_metadata": {
+        "invoice_number": "INV-2024-001",
+        "date": "2024-08-01",
+        "amount": 1250.50,
+        "currency": "EUR",
+        "vendor": "Example Corp"
+      },
+      "confidence": 0.89,
+      "extraction_method": "rule-based"
+    }
+  }
+}

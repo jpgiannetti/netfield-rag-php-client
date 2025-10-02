@@ -1,0 +1,35 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/confidence/metrics",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "period": "last_30_days",
+      "total_queries": 1500,
+      "confidence_distribution": {
+        "very_high": 450,
+        "high": 600,
+        "medium": 350,
+        "low": 100
+      },
+      "average_confidence": 0.72,
+      "accuracy_by_confidence": {
+        "very_high": 0.95,
+        "high": 0.88,
+        "medium": 0.75,
+        "low": 0.58
+      },
+      "timestamp": "2024-08-01T19:44:00Z"
+    }
+  }
+}
