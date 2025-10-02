@@ -18,6 +18,8 @@ use Psr\Log\NullLogger;
  */
 class AdminClient
 {
+    use ErrorMessageExtractorTrait;
+
     private Client $httpClient;
     private JwtAuthenticator $authenticator;
     private LoggerInterface $logger;
@@ -63,8 +65,9 @@ class AdminClient
 
             return OrganizationTokenResponse::fromArray($data);
         } catch (GuzzleException $e) {
-            $this->logger->error('Failed to create organization', ['error' => $e->getMessage()]);
-            throw new RagApiException('Failed to create organization: ' . $e->getMessage(), $e->getCode(), $e);
+            $errorMessage = $this->extractErrorMessage($e);
+            $this->logger->error('Failed to create organization', ['error' => $errorMessage]);
+            throw new RagApiException('Failed to create organization: ' . $errorMessage, $e->getCode(), $e);
         }
     }
 
@@ -99,8 +102,9 @@ class AdminClient
 
             return $data;
         } catch (GuzzleException $e) {
-            $this->logger->error('Failed to list organizations', ['error' => $e->getMessage()]);
-            throw new RagApiException('Failed to list organizations: ' . $e->getMessage(), $e->getCode(), $e);
+            $errorMessage = $this->extractErrorMessage($e);
+            $this->logger->error('Failed to list organizations', ['error' => $errorMessage]);
+            throw new RagApiException('Failed to list organizations: ' . $errorMessage, $e->getCode(), $e);
         }
     }
 
@@ -125,8 +129,9 @@ class AdminClient
 
             return $data;
         } catch (GuzzleException $e) {
-            $this->logger->error('Failed to update organization', ['error' => $e->getMessage()]);
-            throw new RagApiException('Failed to update organization: ' . $e->getMessage(), $e->getCode(), $e);
+            $errorMessage = $this->extractErrorMessage($e);
+            $this->logger->error('Failed to update organization', ['error' => $errorMessage]);
+            throw new RagApiException('Failed to update organization: ' . $errorMessage, $e->getCode(), $e);
         }
     }
 
@@ -155,8 +160,9 @@ class AdminClient
 
             return $data;
         } catch (GuzzleException $e) {
-            $this->logger->error('Failed to delete organization', ['error' => $e->getMessage()]);
-            throw new RagApiException('Failed to delete organization: ' . $e->getMessage(), $e->getCode(), $e);
+            $errorMessage = $this->extractErrorMessage($e);
+            $this->logger->error('Failed to delete organization', ['error' => $errorMessage]);
+            throw new RagApiException('Failed to delete organization: ' . $errorMessage, $e->getCode(), $e);
         }
     }
 
@@ -180,8 +186,9 @@ class AdminClient
 
             return $data;
         } catch (GuzzleException $e) {
-            $this->logger->error('Failed to deactivate organization', ['error' => $e->getMessage()]);
-            throw new RagApiException('Failed to deactivate organization: ' . $e->getMessage(), $e->getCode(), $e);
+            $errorMessage = $this->extractErrorMessage($e);
+            $this->logger->error('Failed to deactivate organization', ['error' => $errorMessage]);
+            throw new RagApiException('Failed to deactivate organization: ' . $errorMessage, $e->getCode(), $e);
         }
     }
 
@@ -205,8 +212,9 @@ class AdminClient
 
             return $data;
         } catch (GuzzleException $e) {
-            $this->logger->error('Failed to reactivate organization', ['error' => $e->getMessage()]);
-            throw new RagApiException('Failed to reactivate organization: ' . $e->getMessage(), $e->getCode(), $e);
+            $errorMessage = $this->extractErrorMessage($e);
+            $this->logger->error('Failed to reactivate organization', ['error' => $errorMessage]);
+            throw new RagApiException('Failed to reactivate organization: ' . $errorMessage, $e->getCode(), $e);
         }
     }
 
@@ -228,8 +236,9 @@ class AdminClient
 
             return $data;
         } catch (GuzzleException $e) {
-            $this->logger->error('Failed to list organization clients', ['error' => $e->getMessage()]);
-            throw new RagApiException('Failed to list organization clients: ' . $e->getMessage(), $e->getCode(), $e);
+            $errorMessage = $this->extractErrorMessage($e);
+            $this->logger->error('Failed to list organization clients', ['error' => $errorMessage]);
+            throw new RagApiException('Failed to list organization clients: ' . $errorMessage, $e->getCode(), $e);
         }
     }
 
@@ -253,8 +262,9 @@ class AdminClient
 
             return $data;
         } catch (GuzzleException $e) {
-            $this->logger->error('Failed to deactivate client', ['error' => $e->getMessage()]);
-            throw new RagApiException('Failed to deactivate client: ' . $e->getMessage(), $e->getCode(), $e);
+            $errorMessage = $this->extractErrorMessage($e);
+            $this->logger->error('Failed to deactivate client', ['error' => $errorMessage]);
+            throw new RagApiException('Failed to deactivate client: ' . $errorMessage, $e->getCode(), $e);
         }
     }
 
@@ -278,8 +288,9 @@ class AdminClient
 
             return $data;
         } catch (GuzzleException $e) {
-            $this->logger->error('Failed to reactivate client', ['error' => $e->getMessage()]);
-            throw new RagApiException('Failed to reactivate client: ' . $e->getMessage(), $e->getCode(), $e);
+            $errorMessage = $this->extractErrorMessage($e);
+            $this->logger->error('Failed to reactivate client', ['error' => $errorMessage]);
+            throw new RagApiException('Failed to reactivate client: ' . $errorMessage, $e->getCode(), $e);
         }
     }
 
@@ -303,8 +314,9 @@ class AdminClient
 
             return $data;
         } catch (GuzzleException $e) {
-            $this->logger->error('Failed to delete client', ['error' => $e->getMessage()]);
-            throw new RagApiException('Failed to delete client: ' . $e->getMessage(), $e->getCode(), $e);
+            $errorMessage = $this->extractErrorMessage($e);
+            $this->logger->error('Failed to delete client', ['error' => $errorMessage]);
+            throw new RagApiException('Failed to delete client: ' . $errorMessage, $e->getCode(), $e);
         }
     }
 
@@ -326,8 +338,9 @@ class AdminClient
 
             return $data;
         } catch (GuzzleException $e) {
-            $this->logger->error('Failed to get admin status', ['error' => $e->getMessage()]);
-            throw new RagApiException('Failed to get admin status: ' . $e->getMessage(), $e->getCode(), $e);
+            $errorMessage = $this->extractErrorMessage($e);
+            $this->logger->error('Failed to get admin status', ['error' => $errorMessage]);
+            throw new RagApiException('Failed to get admin status: ' . $errorMessage, $e->getCode(), $e);
         }
     }
 }
