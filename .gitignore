@@ -4,6 +4,8 @@ composer.lock
 
 # PHPUnit
 /tests/coverage/
+/tests/reports/
+.phpunit.cache/
 phpunit.xml
 .phpunit.result.cache
 
