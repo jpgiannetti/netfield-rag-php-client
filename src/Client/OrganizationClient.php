@@ -66,8 +66,17 @@ class OrganizationClient
             return ClientTokenResponse::fromArray($data);
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Failed to create client token', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to create client token: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Failed to create client token', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to create client token: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -90,8 +99,17 @@ class OrganizationClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Failed to list clients', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to list clients: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Failed to list clients', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to list clients: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -116,8 +134,17 @@ class OrganizationClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Failed to deactivate client', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to deactivate client: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Failed to deactivate client', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to deactivate client: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -140,8 +167,17 @@ class OrganizationClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Failed to get organization info', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to get organization info: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Failed to get organization info', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to get organization info: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -165,8 +201,17 @@ class OrganizationClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Failed to validate client token', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to validate client token: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Failed to validate client token', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to validate client token: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 }

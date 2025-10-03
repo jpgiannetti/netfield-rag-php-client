@@ -68,8 +68,17 @@ class RagClient
             return AskResponse::fromArray($data);
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('RAG query failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to execute RAG query: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('RAG query failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to execute RAG query: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -115,8 +124,17 @@ class RagClient
             }
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Streaming RAG query failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to execute streaming RAG query: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Streaming RAG query failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to execute streaming RAG query: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -142,8 +160,17 @@ class RagClient
             return IndexResponse::fromArray($data);
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Document indexing failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to index document: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Document indexing failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to index document: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -169,8 +196,17 @@ class RagClient
             return BulkIndexResponse::fromArray($data);
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Bulk indexing failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to bulk index documents: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Bulk indexing failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to bulk index documents: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -196,8 +232,17 @@ class RagClient
             return IndexResponse::fromArray($data);
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Document update failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to update document: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Document update failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to update document: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -222,8 +267,17 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Document deletion failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to delete document: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Document deletion failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to delete document: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -243,7 +297,16 @@ class RagClient
             return HealthResponse::fromArray($data);
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Health check failed: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Health check failed: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -266,7 +329,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get confidence thresholds: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get confidence thresholds: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -289,7 +361,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get indexing stats: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get indexing stats: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -315,8 +396,17 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Document validation failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to validate documents: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Document validation failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to validate documents: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -347,8 +437,17 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Document classification failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to classify document: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Document classification failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to classify document: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -377,8 +476,17 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Metadata extraction failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to extract metadata: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Metadata extraction failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to extract metadata: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -401,7 +509,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get taxonomy info: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get taxonomy info: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -424,7 +541,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get filterable fields: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get filterable fields: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -447,7 +573,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get common metadata fields: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get common metadata fields: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -470,7 +605,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get document validation report: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get document validation report: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -493,7 +637,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get validation summary: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get validation summary: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -519,8 +672,17 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Validation query failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to query validation reports: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Validation query failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to query validation reports: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -548,7 +710,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get errors by field: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get errors by field: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -573,8 +744,17 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Cleanup failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to cleanup old reports: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Cleanup failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to cleanup old reports: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -597,7 +777,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get UI settings: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get UI settings: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -620,7 +809,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get calibration info: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get calibration info: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -646,8 +844,17 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Confidence validation failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to validate response confidence: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Confidence validation failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to validate response confidence: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -670,7 +877,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get confidence metrics: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get confidence metrics: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -687,7 +903,16 @@ class RagClient
             return $response->getBody()->getContents();
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get Prometheus metrics: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get Prometheus metrics: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -710,7 +935,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get detailed health check: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get detailed health check: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -733,7 +967,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get trace info: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get trace info: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -756,7 +999,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get performance summary: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get performance summary: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -781,8 +1033,17 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('Alert test failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to test monitoring alert: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Alert test failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to test monitoring alert: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -805,7 +1066,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get system status: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get system status: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -828,7 +1098,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('Failed to get available models: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'Failed to get available models: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -854,8 +1133,17 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            $this->logger->error('RAG pipeline test failed', ['error' => $errorMessage]);
-            throw new RagApiException('Failed to test RAG pipeline: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('RAG pipeline test failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new RagApiException(
+                'Failed to test RAG pipeline: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 
@@ -875,7 +1163,16 @@ class RagClient
             return $data;
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
-            throw new RagApiException('RAG health check failed: ' . $errorMessage, $e->getCode(), $e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new RagApiException(
+                'RAG health check failed: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
         }
     }
 }
