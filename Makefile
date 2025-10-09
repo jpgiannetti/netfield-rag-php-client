@@ -1,201 +1,98 @@
 # Makefile pour le client PHP RAG
+# Usage: make [target]
+
+.PHONY: help install test lint format clean docker-test
 
 # Variables
-DOCKER_COMPOSE_FILE = docker-compose.test.yml
-PHP_CONTAINER = rag-php-client-tests
+COMPOSER := composer
+DOCKER_COMPOSE := docker compose -f docker-compose.test.yml
 
-# Colors for output
-BLUE = \033[0;34m
-GREEN = \033[0;32m
-YELLOW = \033[1;33m
-RED = \033[0;31m
-NC = \033[0m # No Color
+# Couleurs
+RED := \033[31m
+GREEN := \033[32m
+YELLOW := \033[33m
+BLUE := \033[34m
+RESET := \033[0m
 
-.PHONY: help install test test-unit test-integration test-coverage clean docker-build docker-up docker-down docker-shell composer-install composer-update phpstan cs-check cs-fix
-
-# Default target
-help:
-	@echo "$(BLUE)RAG PHP Client - Available Commands$(NC)"
+help: ## Afficher cette aide
+	@echo "$(BLUE)Client PHP RAG - Commandes disponibles:$(RESET)"
 	@echo ""
-	@echo "$(GREEN)Development:$(NC)"
-	@echo "  install          Install dependencies"
-	@echo "  composer-install Install PHP dependencies via Composer"
-	@echo "  composer-update  Update PHP dependencies"
-	@echo ""
-	@echo "$(GREEN)Testing:$(NC)"
-	@echo "  test             Run all tests (full rebuild)"
-	@echo "  test-unit        Run unit tests only (full rebuild)"
-	@echo "  test-integration Run integration tests only (full rebuild)"
-	@echo "  test-coverage    Run tests with coverage report"
-	@echo "  test-watch       Run tests in watch mode (requires entr)"
-	@echo ""
-	@echo "$(GREEN)Fast Testing (requires running environment):$(NC)"
-	@echo "  test-unit-fast   Run unit tests quickly"
-	@echo "  test-integration-fast Run integration tests quickly"
-	@echo "  test-all-fast    Run all tests quickly"
-	@echo ""
-	@echo "$(GREEN)Environment Management:$(NC)"
-	@echo "  env-start        Start test environment"
-	@echo "  env-stop         Stop test environment"
-	@echo "  env-status       Show environment status"
-	@echo ""
-	@echo "$(GREEN)Code Quality:$(NC)"
-	@echo "  phpstan          Run static analysis"
-	@echo "  cs-check         Check code style"
-	@echo "  cs-fix           Fix code style issues"
-	@echo "  quality          Run all quality checks"
-	@echo ""
-	@echo "$(GREEN)Docker:$(NC)"
-	@echo "  docker-build     Build Docker images"
-	@echo "  docker-up        Start test environment"
-	@echo "  docker-down      Stop test environment"
-	@echo "  docker-shell     Open shell in PHP container"
-	@echo "  docker-logs      Show container logs"
-	@echo ""
-	@echo "$(GREEN)Utilities:$(NC)"
-	@echo "  clean            Clean cache and temporary files"
-	@echo "  examples         Run example scripts"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-20s$(RESET) %s\n", $$1, $$2}'
 
-# Installation
-install: composer-install
+##@ Installation
 
-composer-install:
-	@echo "$(BLUE)Installing PHP dependencies...$(NC)"
-	composer install
+install: ## Installer les dépendances PHP
+	@echo "$(BLUE)Installation des dépendances PHP...$(RESET)"
+	$(COMPOSER) install
+	@echo "$(GREEN)✓ Dépendances installées$(RESET)"
 
-composer-update:
-	@echo "$(BLUE)Updating PHP dependencies...$(NC)"
-	composer update
+install-dev: ## Installer dépendances de développement
+	@echo "$(BLUE)Installation des dépendances de développement...$(RESET)"
+	$(COMPOSER) install --dev
+	@echo "$(GREEN)✓ Environnement de développement configuré$(RESET)"
 
-# Testing
-test:
-	@echo "$(BLUE)Running all tests...$(NC)"
-	./bin/run-tests.sh all
+##@ Tests (Docker)
 
-test-unit:
-	@echo "$(BLUE)Running unit tests...$(NC)"
-	./bin/run-tests.sh unit
+docker-test-up: ## Démarrer l'environnement de test Docker
+	@echo "$(BLUE)Démarrage de l'environnement de test...$(RESET)"
+	$(DOCKER_COMPOSE) up -d --build
+	@echo "$(GREEN)✓ Environnement de test démarré$(RESET)"
 
-test-integration:
-	@echo "$(BLUE)Running integration tests...$(NC)"
-	./bin/run-tests.sh integration
+docker-test-down: ## Arrêter l'environnement de test Docker
+	@echo "$(BLUE)Arrêt de l'environnement de test...$(RESET)"
+	$(DOCKER_COMPOSE) down
+	@echo "$(GREEN)✓ Environnement de test arrêté$(RESET)"
 
-test-coverage:
-	@echo "$(BLUE)Running tests with coverage...$(NC)"
-	./bin/run-tests.sh all --coverage
+docker-test-status: ## Vérifier le statut de l'environnement de test
+	@echo "$(BLUE)Statut de l'environnement de test:$(RESET)"
+	$(DOCKER_COMPOSE) ps
 
-test-watch:
-	@echo "$(BLUE)Running tests in watch mode...$(NC)"
-	@echo "$(YELLOW)Press Ctrl+C to stop$(NC)"
-	find src tests -name "*.php" | entr ./bin/docker-test.sh "./vendor/bin/phpunit --colors=always"
+test: ## Exécuter tous les tests dans Docker
+	@echo "$(BLUE)Exécution de tous les tests...$(RESET)"
+	$(DOCKER_COMPOSE) exec php-test ./vendor/bin/phpunit --colors
 
-# Code Quality
-phpstan:
-	@echo "$(BLUE)Running static analysis...$(NC)"
-	./bin/docker-test.sh "./vendor/bin/phpstan analyse"
+test-unit: ## Exécuter les tests unitaires dans Docker
+	@echo "$(BLUE)Exécution des tests unitaires...$(RESET)"
+	$(DOCKER_COMPOSE) exec php-test ./vendor/bin/phpunit --testsuite "Unit Tests" --colors
 
-cs-check:
-	@echo "$(BLUE)Checking code style...$(NC)"
-	./bin/docker-test.sh "./vendor/bin/phpcs src tests --standard=PSR12"
+test-integration: ## Exécuter les tests d'intégration dans Docker
+	@echo "$(BLUE)Exécution des tests d'intégration...$(RESET)"
+	$(DOCKER_COMPOSE) exec php-test ./vendor/bin/phpunit --testsuite "Integration Tests" --colors
 
-cs-fix:
-	@echo "$(BLUE)Fixing code style...$(NC)"
-	./bin/docker-test.sh "./vendor/bin/phpcbf src tests --standard=PSR12"
+test-coverage: ## Exécuter les tests avec couverture
+	@echo "$(BLUE)Exécution des tests avec couverture...$(RESET)"
+	$(DOCKER_COMPOSE) exec php-test ./vendor/bin/phpunit --coverage-html tests/coverage --colors
 
-quality: cs-check phpstan test-unit
-	@echo "$(GREEN)All quality checks passed!$(NC)"
+test-logs: ## Afficher les logs de l'environnement de test
+	@echo "$(BLUE)Logs de l'environnement de test:$(RESET)"
+	$(DOCKER_COMPOSE) logs -f
 
-# Docker
-docker-build:
-	@echo "$(BLUE)Building Docker images...$(NC)"
-	docker-compose -f $(DOCKER_COMPOSE_FILE) build --no-cache
+##@ Qualité du code
 
-docker-up:
-	@echo "$(BLUE)Starting test environment...$(NC)"
-	docker-compose -f $(DOCKER_COMPOSE_FILE) up -d
-	@echo "$(GREEN)Test environment is running$(NC)"
-	@echo "Services available:"
-	@echo "  - PHP Tests: http://localhost:8080 (internal)"
-	@echo "  - RAG API Mock: http://localhost:8888"
-	@echo "  - WireMock: http://localhost:9999"
+lint: ## Vérifier la qualité du code (PHPStan)
+	@echo "$(BLUE)Vérification de la qualité du code...$(RESET)"
+	$(COMPOSER) phpstan
+	@echo "$(GREEN)✓ Code quality OK$(RESET)"
 
-docker-down:
-	@echo "$(BLUE)Stopping test environment...$(NC)"
-	docker-compose -f $(DOCKER_COMPOSE_FILE) down --remove-orphans
-	@echo "$(GREEN)Test environment stopped$(NC)"
+format: ## Formater le code automatiquement
+	@echo "$(BLUE)Formatage du code...$(RESET)"
+	$(COMPOSER) cs-fix
+	@echo "$(GREEN)✓ Code formaté$(RESET)"
 
-docker-shell:
-	@echo "$(BLUE)Opening shell in PHP container...$(NC)"
-	docker-compose -f $(DOCKER_COMPOSE_FILE) exec $(PHP_CONTAINER) /bin/bash
+format-check: ## Vérifier le formatage du code
+	@echo "$(BLUE)Vérification du formatage...$(RESET)"
+	$(COMPOSER) cs-check
 
-docker-logs:
-	@echo "$(BLUE)Showing container logs...$(NC)"
-	docker-compose -f $(DOCKER_COMPOSE_FILE) logs -f
+##@ Nettoyage
 
-# Examples
-examples:
-	@echo "$(BLUE)Running example scripts...$(NC)"
-	@echo "$(YELLOW)Make sure the RAG API is running first$(NC)"
-	docker-compose -f $(DOCKER_COMPOSE_FILE) exec $(PHP_CONTAINER) php examples/bulk-indexing.php
-	docker-compose -f $(DOCKER_COMPOSE_FILE) exec $(PHP_CONTAINER) php examples/simple-search.php
+clean: ## Nettoyer les fichiers temporaires
+	@echo "$(BLUE)Nettoyage...$(RESET)"
+	rm -rf vendor/ composer.lock .phpunit.cache/ tests/coverage/
+	@echo "$(GREEN)✓ Nettoyage terminé$(RESET)"
 
-# Utilities
-clean:
-	@echo "$(BLUE)Cleaning temporary files...$(NC)"
-	rm -rf .phpunit.cache
-	rm -rf tests/coverage
-	rm -rf tests/reports
-	mkdir -p tests/coverage tests/reports
-	@echo "$(GREEN)Cleanup completed$(NC)"
+clean-docker: ## Nettoyer l'environnement de test Docker
+	@echo "$(BLUE)Nettoyage Docker...$(RESET)"
+	$(DOCKER_COMPOSE) down --volumes --remove-orphans
+	@echo "$(GREEN)✓ Environnement Docker nettoyé$(RESET)"
 
-# Development shortcuts
-dev-setup: install docker-build
-	@echo "$(GREEN)Development environment ready!$(NC)"
-	@echo "Run 'make docker-up' to start the test environment"
-
-ci: clean quality test-coverage
-	@echo "$(GREEN)CI pipeline completed successfully!$(NC)"
-
-# Quick test commands (require running Docker environment)
-quick-test:
-	./bin/docker-test.sh "./vendor/bin/phpunit --testsuite 'Unit Tests' --no-coverage"
-
-debug-test:
-	./bin/docker-test.sh "./vendor/bin/phpunit --testsuite 'Unit Tests' --verbose --debug"
-
-# Fast test commands (use existing Docker environment)
-test-unit-fast:
-	@echo "$(BLUE)Running unit tests (fast - requires running environment)...$(NC)"
-	@docker compose -f $(DOCKER_COMPOSE_FILE) exec php-test ./vendor/bin/phpunit --testsuite "Unit Tests" --colors || true
-	@echo "$(GREEN)Unit tests completed! ✅$(NC)"
-
-test-integration-fast:
-	@echo "$(BLUE)Running integration tests (fast - requires running environment)...$(NC)"
-	@docker compose -f $(DOCKER_COMPOSE_FILE) exec php-test ./vendor/bin/phpunit --testsuite "Integration Tests" --colors || true
-	@echo "$(GREEN)Integration tests completed! ✅$(NC)"
-
-test-all-fast:
-	@echo "$(BLUE)Running all tests (fast - requires running environment)...$(NC)"
-	@docker compose -f $(DOCKER_COMPOSE_FILE) exec php-test ./vendor/bin/phpunit --colors || true
-	@echo "$(GREEN)All tests completed! ✅$(NC)"
-
-# Environment management shortcuts
-env-start:
-	@echo "$(BLUE)Starting test environment...$(NC)"
-	docker compose -f $(DOCKER_COMPOSE_FILE) up -d --build
-	@echo "$(GREEN)Test environment is ready! Use 'make test-unit-fast' for quick tests$(NC)"
-
-env-stop:
-	@echo "$(BLUE)Stopping test environment...$(NC)"
-	docker compose -f $(DOCKER_COMPOSE_FILE) down
-	@echo "$(GREEN)Test environment stopped$(NC)"
-
-env-status:
-	@echo "$(BLUE)Test environment status:$(NC)"
-	docker compose -f $(DOCKER_COMPOSE_FILE) ps
-
-# Documentation
-docs:
-	@echo "$(BLUE)Generating documentation...$(NC)"
-	@echo "Documentation is available in README.md"
-	@echo "API documentation: http://localhost:8888/docs (when RAG API is running)"
+.DEFAULT_GOAL := help
