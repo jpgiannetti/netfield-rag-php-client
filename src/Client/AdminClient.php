@@ -18,8 +18,6 @@ use Psr\Log\NullLogger;
  */
 class AdminClient
 {
-    use ErrorMessageExtractorTrait;
-
     private Client $httpClient;
     private JwtAuthenticator $authenticator;
     private LoggerInterface $logger;
@@ -65,18 +63,12 @@ class AdminClient
 
             return OrganizationTokenResponse::fromArray($data);
         } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Failed to create organization', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
-                'Failed to create organization: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
+            $exception = RagApiException::fromGuzzleException($e, 'Failed to create organization');
+            $this->logger->error('Failed to create organization', [
+                'error' => $exception->getMessage(),
+                'error_code' => $exception->getErrorCode()
+            ]);
+            throw $exception;
         }
     }
 
@@ -111,18 +103,12 @@ class AdminClient
 
             return $data;
         } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Failed to list organizations', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
-                'Failed to list organizations: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
+            $exception = RagApiException::fromGuzzleException($e, 'Failed to list organizations');
+            $this->logger->error('Failed to list organizations', [
+                'error' => $exception->getMessage(),
+                'error_code' => $exception->getErrorCode()
+            ]);
+            throw $exception;
         }
     }
 

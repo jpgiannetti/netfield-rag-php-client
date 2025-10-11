@@ -277,19 +277,111 @@ $client = RagClientFactory::createCustom(
 
 ### Gestion des Erreurs
 
+Le client gère automatiquement les codes d'erreur standardisés de l'API RAG (format `UPPER_SNAKE_CASE`).
+
+#### Gestion Simple
+
 ```php
 use Netfield\RagClient\Exception\RagApiException;
-use Netfield\RagClient\Exception\AuthenticationException;
+use Netfield\RagClient\Exception\ErrorCode;
 
 try {
-    $response = $client->ask($question);
-} catch (AuthenticationException $e) {
-    echo "Erreur d'authentification: {$e->getMessage()}\n";
+    $response = $orgClient->createClientToken($request);
+    echo "Token créé: {$response->jwt_token}\n";
 } catch (RagApiException $e) {
-    echo "Erreur API: {$e->getMessage()}\n";
-    echo "Code: {$e->getCode()}\n";
-} catch (Exception $e) {
-    echo "Erreur générale: {$e->getMessage()}\n";
+    // Accès au code d'erreur standardisé
+    echo "Erreur: {$e->getErrorCode()}\n";  // Ex: ORG_CLIENT_ALREADY_EXISTS
+    echo "Message: {$e->getMessage()}\n";
+
+    // Helpers de classification
+    if ($e->isRetryable()) {
+        echo "⚠️ Erreur temporaire - retry possible\n";
+    }
+    if ($e->needsAuthRefresh()) {
+        echo "🔄 Token expiré - refresh nécessaire\n";
+    }
+    if ($e->isCritical()) {
+        echo "🚨 Erreur critique - alerter l'équipe ops\n";
+    }
+}
+```
+
+#### Gestion Avancée avec Codes Spécifiques
+
+```php
+try {
+    $response = $orgClient->createClientToken($request);
+} catch (RagApiException $e) {
+    // Traitement conditionnel selon le code d'erreur
+    switch ($e->getErrorCode()) {
+        case ErrorCode::ORG_CLIENT_ALREADY_EXISTS:
+            return ['status' => 'exists', 'message' => 'Ce client existe déjà'];
+
+        case ErrorCode::AUTH_TOKEN_EXPIRED:
+            $newToken = refreshToken();
+            return retry($request);
+
+        case ErrorCode::INDEX_WEAVIATE_CONNECTION_ERROR:
+            if ($e->isRetryable()) {
+                sleep(2);
+                return retry($request);
+            }
+            break;
+
+        default:
+            logError($e);
+            throw $e;
+    }
+}
+```
+
+#### Sérialisation JSON pour le Front-End
+
+```php
+try {
+    $response = $client->indexDocument($document);
+} catch (RagApiException $e) {
+    // Convertir en JSON structuré pour le front-end
+    $errorData = $e->toArray();
+
+    return response()->json($errorData, $e->getCode());
+
+    /* Retourne:
+    {
+        "error_code": "INDEX_DUPLICATE_DOCUMENT_ID",
+        "message": "Failed to index document: ID de document déjà existant",
+        "details": {"document_id": "doc_123", "tenant_id": "client_abc"},
+        "field": null,
+        "timestamp": "2025-10-11T14:32:10.123Z",
+        "trace_id": "abc-123-def-456",
+        "http_status": 409,
+        "is_retryable": false,
+        "is_critical": false,
+        "needs_auth_refresh": false
+    }
+    */
+}
+```
+
+#### Informations Détaillées de l'Erreur
+
+```php
+try {
+    $response = $client->ask($question);
+} catch (RagApiException $e) {
+    // Accès aux détails complets de l'erreur
+    $errorCode = $e->getErrorCode();          // ORG_CLIENT_ALREADY_EXISTS
+    $details = $e->getDetails();               // ['client_name' => 'test', ...]
+    $field = $e->getField();                   // Champ concerné (validation)
+    $timestamp = $e->getTimestamp();           // 2025-10-11T14:32:10.123Z
+    $traceId = $e->getTraceId();               // Pour debugging distribué
+
+    // Logging structuré
+    $logger->error('API error', [
+        'error_code' => $errorCode,
+        'trace_id' => $traceId,
+        'details' => $details,
+    ]);
 }
 ```
 
