@@ -19,7 +19,8 @@
         "php": ">=8.0",
         "guzzlehttp/guzzle": "^7.0",
         "firebase/php-jwt": "^6.0",
-        "psr/log": "^1.0|^2.0|^3.0"
+        "psr/log": "^1.0|^2.0|^3.0",
+        "symfony/translation-contracts": "^2.0|^3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0|^10.0",
@@ -28,7 +29,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Netfield\\RagClient\\": "src/"
+            "Netfield\\RagClient\\": "src/",
+            "Ged\\": "src/Compat/Ged/"
         }
     },
     "autoload-dev": {

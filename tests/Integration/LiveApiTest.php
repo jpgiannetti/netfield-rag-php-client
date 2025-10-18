@@ -37,7 +37,6 @@ class LiveApiTest extends TestCase
             $this->assertEquals('healthy', $health->getStatus());
 
             echo "\n✅ Basic health check successful\n";
-
         } catch (RagApiException $e) {
             $this->markTestSkipped('API not available at ' . $this->baseUrl . ': ' . $e->getMessage());
         }
@@ -52,7 +51,6 @@ class LiveApiTest extends TestCase
             $thresholds = $client->getConfidenceThresholds();
             $this->assertIsArray($thresholds);
             echo "\n✅ Confidence thresholds endpoint accessible\n";
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '404') !== false) {
                 $this->markTestSkipped('Confidence endpoints not available: ' . $e->getMessage());
@@ -64,7 +62,6 @@ class LiveApiTest extends TestCase
             $models = $client->getAvailableModels();
             $this->assertIsArray($models);
             echo "\n✅ Available models endpoint accessible\n";
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '404') !== false) {
                 $this->markTestSkipped('Models endpoint not available: ' . $e->getMessage());
@@ -76,7 +73,6 @@ class LiveApiTest extends TestCase
             $taxonomy = $client->getTaxonomyInfo();
             $this->assertIsArray($taxonomy);
             echo "\n✅ Taxonomy info endpoint accessible\n";
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '404') !== false) {
                 $this->markTestSkipped('Taxonomy endpoint not available: ' . $e->getMessage());
@@ -176,7 +172,6 @@ class LiveApiTest extends TestCase
             $classification = $client->classifyDocument($testContent, "Test Invoice");
             $this->assertIsArray($classification);
             echo "\n✅ Document classification endpoint working\n";
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '404') === false && strpos($e->getMessage(), '503') === false) {
                 throw $e;
@@ -189,7 +184,6 @@ class LiveApiTest extends TestCase
             $metadata = $client->extractMetadata($testContent, 'invoice');
             $this->assertIsArray($metadata);
             echo "\n✅ Metadata extraction endpoint working\n";
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '404') === false && strpos($e->getMessage(), '503') === false) {
                 throw $e;
@@ -207,7 +201,6 @@ class LiveApiTest extends TestCase
             $detailedHealth = $client->getDetailedHealthCheck();
             $this->assertIsArray($detailedHealth);
             echo "\n✅ Detailed health check endpoint working\n";
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '404') === false && strpos($e->getMessage(), '503') === false) {
                 throw $e;
@@ -220,7 +213,6 @@ class LiveApiTest extends TestCase
             $metrics = $client->getPrometheusMetrics();
             $this->assertIsString($metrics);
             echo "\n✅ Prometheus metrics endpoint working\n";
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '404') === false && strpos($e->getMessage(), '503') === false) {
                 throw $e;

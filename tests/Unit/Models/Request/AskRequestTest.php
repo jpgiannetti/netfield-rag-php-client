@@ -126,9 +126,9 @@ class AskRequestTest extends TestCase
     public function testSetFiltersToNull(): void
     {
         $request = new AskRequest("Test question", 10, ['initial' => 'filters']);
-        
+
         $request->setFilters(null);
-        
+
         $this->assertNull($request->getFilters());
     }
 
@@ -217,7 +217,7 @@ class AskRequestTest extends TestCase
         }
 
         $request = new AskRequest($question);
-        
+
         if ($shouldPass) {
             $this->assertEquals(trim($question), $request->getQuestion());
         }
@@ -246,7 +246,7 @@ class AskRequestTest extends TestCase
         }
 
         $request = new AskRequest("Test question", $limit);
-        
+
         if ($shouldPass) {
             $this->assertEquals($limit, $request->getLimit());
         }

@@ -54,7 +54,6 @@ class OrganizationClientIntegrationTest extends TestCase
             $this->assertNotEmpty($response->getToken());
             $this->assertGreaterThan(0, $response->getExpiresIn());
             $this->assertEquals(['read', 'write'], $response->getScopes());
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '403') !== false || strpos($e->getMessage(), '401') !== false) {
                 $this->markTestIncomplete('Organization token creation requires proper authentication - request structure validated');
@@ -74,7 +73,6 @@ class OrganizationClientIntegrationTest extends TestCase
             $this->assertArrayHasKey('clients', $clients);
             $this->assertArrayHasKey('total', $clients);
             $this->assertIsArray($clients['clients']);
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '403') !== false || strpos($e->getMessage(), '401') !== false) {
                 $this->markTestIncomplete('Client listing requires proper authentication - request structure validated');
@@ -97,7 +95,6 @@ class OrganizationClientIntegrationTest extends TestCase
                     $this->assertArrayHasKey($key, $info);
                 }
             }
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '403') !== false || strpos($e->getMessage(), '401') !== false) {
                 $this->markTestIncomplete('Organization info requires proper authentication - request structure validated');
@@ -122,11 +119,12 @@ class OrganizationClientIntegrationTest extends TestCase
                 $this->assertArrayHasKey('valid', $result);
                 $this->assertIsBool($result['valid']);
             }
-
         } catch (RagApiException $e) {
-            if (strpos($e->getMessage(), '403') !== false ||
+            if (
+                strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
-                strpos($e->getMessage(), '422') !== false) {
+                strpos($e->getMessage(), '422') !== false
+            ) {
                 $this->markTestIncomplete('Token validation requires proper authentication or valid token format - request structure validated');
             } else {
                 throw $e;
@@ -145,11 +143,12 @@ class OrganizationClientIntegrationTest extends TestCase
             if (isset($result['status'])) {
                 $this->assertArrayHasKey('status', $result);
             }
-
         } catch (RagApiException $e) {
-            if (strpos($e->getMessage(), '403') !== false ||
+            if (
+                strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
-                strpos($e->getMessage(), '404') !== false) {
+                strpos($e->getMessage(), '404') !== false
+            ) {
                 $this->markTestIncomplete('Client deactivation requires proper authentication and valid client ID - request structure validated');
             } else {
                 throw $e;

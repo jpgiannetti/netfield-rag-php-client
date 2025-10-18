@@ -47,7 +47,6 @@ class RagClientExtendedIntegrationTest extends TestCase
                 $this->assertGreaterThanOrEqual(0, $result['confidence']);
                 $this->assertLessThanOrEqual(1, $result['confidence']);
             }
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '503') !== false || strpos($e->getMessage(), '404') !== false) {
                 $this->markTestIncomplete('Classification service may not be available - endpoint structure validated');
@@ -66,11 +65,12 @@ class RagClientExtendedIntegrationTest extends TestCase
 
             $this->assertIsArray($result);
             // Metadata extraction might return various fields depending on document type
-
         } catch (RagApiException $e) {
-            if (strpos($e->getMessage(), '503') !== false ||
+            if (
+                strpos($e->getMessage(), '503') !== false ||
                 strpos($e->getMessage(), '404') !== false ||
-                strpos($e->getMessage(), '422') !== false) {
+                strpos($e->getMessage(), '422') !== false
+            ) {
                 $this->markTestIncomplete('Metadata extraction service may not be available - endpoint structure validated');
             } else {
                 throw $e;
@@ -93,7 +93,6 @@ class RagClientExtendedIntegrationTest extends TestCase
             $this->assertIsInt($result['total_categories']);
             $this->assertIsInt($result['total_document_types']);
             $this->assertIsArray($result['categories']);
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '503') !== false || strpos($e->getMessage(), '404') !== false) {
                 $this->markTestIncomplete('Taxonomy service may not be available - endpoint structure validated');
@@ -113,11 +112,12 @@ class RagClientExtendedIntegrationTest extends TestCase
             foreach ($result as $field) {
                 $this->assertIsString($field);
             }
-
         } catch (RagApiException $e) {
-            if (strpos($e->getMessage(), '503') !== false ||
+            if (
+                strpos($e->getMessage(), '503') !== false ||
                 strpos($e->getMessage(), '404') !== false ||
-                strpos($e->getMessage(), '422') !== false) {
+                strpos($e->getMessage(), '422') !== false
+            ) {
                 $this->markTestIncomplete('Filterable fields service may not be available - endpoint structure validated');
             } else {
                 throw $e;
@@ -132,7 +132,6 @@ class RagClientExtendedIntegrationTest extends TestCase
 
             $this->assertIsArray($result);
             // Should return metadata field definitions
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '503') !== false || strpos($e->getMessage(), '404') !== false) {
                 $this->markTestIncomplete('Common metadata fields service may not be available - endpoint structure validated');
@@ -155,7 +154,6 @@ class RagClientExtendedIntegrationTest extends TestCase
 
             $this->assertIsArray($result);
             // Validation should return structure information
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '503') !== false || strpos($e->getMessage(), '404') !== false) {
                 $this->markTestIncomplete('Document validation service may not be available - endpoint structure validated');
@@ -182,7 +180,6 @@ class RagClientExtendedIntegrationTest extends TestCase
             $this->assertIsInt($result['total_errors']);
             $this->assertIsInt($result['total_warnings']);
             $this->assertIsFloat($result['error_rate']);
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '503') !== false || strpos($e->getMessage(), '404') !== false) {
                 $this->markTestIncomplete('Validation summary service may not be available - endpoint structure validated');
@@ -209,7 +206,6 @@ class RagClientExtendedIntegrationTest extends TestCase
                 $this->assertGreaterThanOrEqual(0, $result[$key]);
                 $this->assertLessThanOrEqual(1, $result[$key]);
             }
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '503') !== false || strpos($e->getMessage(), '404') !== false) {
                 $this->markTestIncomplete('Confidence thresholds service may not be available - endpoint structure validated');
@@ -234,7 +230,6 @@ class RagClientExtendedIntegrationTest extends TestCase
             $this->assertIsBool($result['show_reliability_details']);
             $this->assertIsBool($result['hide_low_confidence']);
             $this->assertIsFloat($result['warning_threshold']);
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '503') !== false || strpos($e->getMessage(), '404') !== false) {
                 $this->markTestIncomplete('UI settings service may not be available - endpoint structure validated');
@@ -256,7 +251,6 @@ class RagClientExtendedIntegrationTest extends TestCase
             if (isset($result['default_model'])) {
                 $this->assertIsString($result['default_model']);
             }
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '503') !== false || strpos($e->getMessage(), '404') !== false) {
                 $this->markTestIncomplete('Available models service may not be available - endpoint structure validated');
@@ -278,7 +272,6 @@ class RagClientExtendedIntegrationTest extends TestCase
                 // If healthy, might have additional info
                 $this->assertEquals('healthy', $result['status']);
             }
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '503') !== false) {
                 $this->markTestIncomplete('RAG health check indicates service issues - endpoint structure validated');
@@ -302,7 +295,6 @@ class RagClientExtendedIntegrationTest extends TestCase
             if (isset($result['system'])) {
                 $this->assertIsArray($result['system']);
             }
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '503') !== false || strpos($e->getMessage(), '404') !== false) {
                 $this->markTestIncomplete('Detailed health check service may not be available - endpoint structure validated');
@@ -319,7 +311,6 @@ class RagClientExtendedIntegrationTest extends TestCase
 
             $this->assertIsString($result);
             $this->assertThat($result, $this->stringContains('# HELP'));
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '503') !== false || strpos($e->getMessage(), '404') !== false) {
                 $this->markTestIncomplete('Prometheus metrics service may not be available - endpoint structure validated');
@@ -338,11 +329,12 @@ class RagClientExtendedIntegrationTest extends TestCase
 
             $this->assertIsArray($result);
             // Test pipeline should return debug information
-
         } catch (RagApiException $e) {
-            if (strpos($e->getMessage(), '503') !== false ||
+            if (
+                strpos($e->getMessage(), '503') !== false ||
                 strpos($e->getMessage(), '404') !== false ||
-                strpos($e->getMessage(), '422') !== false) {
+                strpos($e->getMessage(), '422') !== false
+            ) {
                 $this->markTestIncomplete('RAG pipeline test service may not be available - endpoint structure validated');
             } else {
                 throw $e;

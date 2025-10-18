@@ -7,8 +7,10 @@ namespace Netfield\RagClient\Exception;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
+use Ged\ApiProblem\ApiProblemExceptionInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class RagApiException extends Exception
+class RagApiException extends Exception implements ApiProblemExceptionInterface
 {
     protected ?array $context;
     private ?string $errorCode;
@@ -197,6 +199,41 @@ class RagApiException extends Exception
             'is_retryable' => $this->isRetryable(),
             'is_critical' => $this->isCritical(),
             'needs_auth_refresh' => $this->needsAuthRefresh(),
+        ];
+    }
+
+    public function getStatus(): int
+    {
+        return $this->getCode() ?: 500;
+    }
+
+    public function getTitle(TranslatorInterface $translator): string
+    {
+        return 'Failed to process action';
+    }
+
+    public function getDetail(TranslatorInterface $translator): string
+    {
+        return $this->getMessage();
+    }
+
+    public function getType(): string
+    {
+        return get_class($this);
+    }
+
+    public function getInstance(): array
+    {
+        return [
+            'uuid' => $this->getTraceId() ?? uniqid('err_', true),
+            'trace' => [[
+                'type' => get_class($this),
+                'code' => $this->getCode(),
+                'message' => $this->getMessage(),
+                'file' => $this->getFile(),
+                'line' => $this->getLine(),
+                'trace' => array_slice($this->getTrace(), 0, 10)
+            ]]
         ];
     }
 }

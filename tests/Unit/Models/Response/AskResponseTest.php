@@ -37,7 +37,7 @@ class AskResponseTest extends TestCase
                     'metadata' => ['type' => 'invoice']
                 ],
                 [
-                    'document_id' => 'doc-2', 
+                    'document_id' => 'doc-2',
                     'title' => 'Document Two',
                     'content' => 'Another excerpt',
                     'score' => 0.87,
@@ -76,7 +76,7 @@ class AskResponseTest extends TestCase
         $this->assertEquals($this->minimalResponseData['tenant_id'], $response->getTenantId());
         $this->assertEquals($this->minimalResponseData['retrieved_documents'], $response->getRetrievedDocuments());
         $this->assertEquals($this->minimalResponseData['processing_time'], $response->getProcessingTime());
-        
+
         // Optional fields should be null
         $this->assertNull($response->getModelUsed());
         $this->assertNull($response->getConfidence());

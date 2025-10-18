@@ -51,9 +51,11 @@ class ClientFactoryIntegrationTest extends TestCase
             $status = $adminClient->getAdminStatus();
             $this->assertIsArray($status);
         } catch (RagApiException $e) {
-            if (strpos($e->getMessage(), '403') !== false ||
+            if (
+                strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
-                strpos($e->getMessage(), '404') !== false) {
+                strpos($e->getMessage(), '404') !== false
+            ) {
                 $this->markTestIncomplete('Admin endpoints require proper authentication or are not mocked - client creation successful');
             } else {
                 throw $e;
@@ -72,9 +74,11 @@ class ClientFactoryIntegrationTest extends TestCase
             $info = $orgClient->getOrganizationInfo();
             $this->assertIsArray($info);
         } catch (RagApiException $e) {
-            if (strpos($e->getMessage(), '403') !== false ||
+            if (
+                strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
-                strpos($e->getMessage(), '404') !== false) {
+                strpos($e->getMessage(), '404') !== false
+            ) {
                 $this->markTestIncomplete('Organization endpoints require proper authentication or are not mocked - client creation successful');
             } else {
                 throw $e;
@@ -131,7 +135,6 @@ class ClientFactoryIntegrationTest extends TestCase
                     throw $e;
                 }
             }
-
         } finally {
             // Clean up environment variables
             unset($_ENV['RAG_API_URL']);
@@ -148,7 +151,6 @@ class ClientFactoryIntegrationTest extends TestCase
         try {
             $client = RagClientFactory::createFromEnv();
             $this->assertInstanceOf(RagClient::class, $client);
-
         } catch (RagApiException $e) {
             // Expected with a fake token format
             $this->assertTrue(true, 'Factory correctly handles invalid tokens');
@@ -181,7 +183,6 @@ class ClientFactoryIntegrationTest extends TestCase
             $this->expectExceptionMessage('Either RAG_JWT_TOKEN or RAG_TENANT_ID environment variable is required');
 
             RagClientFactory::createFromEnv();
-
         } finally {
             unset($_ENV['RAG_API_URL']);
         }

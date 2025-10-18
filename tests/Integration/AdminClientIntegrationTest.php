@@ -72,7 +72,6 @@ class AdminClientIntegrationTest extends TestCase
             $this->assertNotEmpty($response->getOrganizationId());
             $this->assertNotEmpty($response->getToken());
             $this->assertGreaterThan(0, $response->getExpiresIn());
-
         } catch (RagApiException $e) {
             // Expected if admin endpoints require real authentication
             if (strpos($e->getMessage(), '403') !== false || strpos($e->getMessage(), '401') !== false) {
@@ -91,7 +90,6 @@ class AdminClientIntegrationTest extends TestCase
             $this->assertIsArray($organizations);
             $this->assertArrayHasKey('organizations', $organizations);
             $this->assertArrayHasKey('total', $organizations);
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '403') !== false || strpos($e->getMessage(), '401') !== false) {
                 $this->markTestIncomplete('Admin listing requires proper authentication - request structure validated');
@@ -107,7 +105,6 @@ class AdminClientIntegrationTest extends TestCase
             $organizations = $this->adminClient->listOrganizations('test', 'active');
 
             $this->assertIsArray($organizations);
-
         } catch (RagApiException $e) {
             if (strpos($e->getMessage(), '403') !== false || strpos($e->getMessage(), '401') !== false) {
                 $this->markTestIncomplete('Admin listing with filters requires proper authentication - request structure validated');
@@ -129,11 +126,12 @@ class AdminClientIntegrationTest extends TestCase
             $result = $this->adminClient->updateOrganization('org_test_123', $updateData);
 
             $this->assertIsArray($result);
-
         } catch (RagApiException $e) {
-            if (strpos($e->getMessage(), '403') !== false ||
+            if (
+                strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
-                strpos($e->getMessage(), '404') !== false) {
+                strpos($e->getMessage(), '404') !== false
+            ) {
                 $this->markTestIncomplete('Admin update requires proper authentication or valid org ID - request structure validated');
             } else {
                 throw $e;
@@ -149,11 +147,12 @@ class AdminClientIntegrationTest extends TestCase
             // Test deactivation
             $deactivateResult = $this->adminClient->deactivateOrganization($testOrgId);
             $this->assertIsArray($deactivateResult);
-
         } catch (RagApiException $e) {
-            if (strpos($e->getMessage(), '403') !== false ||
+            if (
+                strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
-                strpos($e->getMessage(), '404') !== false) {
+                strpos($e->getMessage(), '404') !== false
+            ) {
                 $this->markTestIncomplete('Organization management requires proper authentication - request structure validated');
             } else {
                 throw $e;
@@ -164,11 +163,12 @@ class AdminClientIntegrationTest extends TestCase
             // Test reactivation
             $reactivateResult = $this->adminClient->reactivateOrganization($testOrgId);
             $this->assertIsArray($reactivateResult);
-
         } catch (RagApiException $e) {
-            if (strpos($e->getMessage(), '403') !== false ||
+            if (
+                strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
-                strpos($e->getMessage(), '404') !== false) {
+                strpos($e->getMessage(), '404') !== false
+            ) {
                 $this->markTestIncomplete('Organization reactivation requires proper authentication - request structure validated');
             }
         }
@@ -183,11 +183,12 @@ class AdminClientIntegrationTest extends TestCase
             // Test list organization clients
             $clients = $this->adminClient->listOrganizationClients($testOrgId);
             $this->assertIsArray($clients);
-
         } catch (RagApiException $e) {
-            if (strpos($e->getMessage(), '403') !== false ||
+            if (
+                strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
-                strpos($e->getMessage(), '404') !== false) {
+                strpos($e->getMessage(), '404') !== false
+            ) {
                 $this->markTestIncomplete('Client listing requires proper authentication - request structure validated');
             }
         }
@@ -196,11 +197,12 @@ class AdminClientIntegrationTest extends TestCase
             // Test deactivate client
             $result = $this->adminClient->deactivateClient($testOrgId, $testClientId);
             $this->assertIsArray($result);
-
         } catch (RagApiException $e) {
-            if (strpos($e->getMessage(), '403') !== false ||
+            if (
+                strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
-                strpos($e->getMessage(), '404') !== false) {
+                strpos($e->getMessage(), '404') !== false
+            ) {
                 $this->markTestIncomplete('Client deactivation requires proper authentication - request structure validated');
             }
         }

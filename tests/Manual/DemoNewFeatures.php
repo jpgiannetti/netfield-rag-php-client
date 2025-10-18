@@ -87,7 +87,6 @@ try {
     // Test basic health (should work)
     $health = $ragClient->health();
     echo "✅ Health Check: " . $health->getStatus() . "\n";
-
 } catch (Exception $e) {
     echo "⚠️  Health Check: API not available - " . $e->getMessage() . "\n";
 }

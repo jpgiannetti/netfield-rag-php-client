@@ -252,7 +252,7 @@ class IndexDocumentRequestTest extends TestCase
         $this->assertEquals($data['tenant_id'], $request->getTenantId());
         $this->assertEquals($data['content'], $request->getContent());
         $this->assertEquals($data['metadata'], $request->getMetadata());
-        
+
         $docInfo = $request->getDocumentInfo();
         $this->assertEquals($data['document_info']['title'], $docInfo->getTitle());
         $this->assertEquals($data['document_info']['creation_date'], $docInfo->getCreationDate());
