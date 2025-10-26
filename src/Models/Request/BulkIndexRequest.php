@@ -8,33 +8,16 @@ use Netfield\RagClient\Exception\RagApiException;
 
 class BulkIndexRequest
 {
-    private ?string $tenantId;
     private array $documents;
 
     /**
-     * @param string|null $tenantId Optionnel - sera extrait du JWT si null
-     * @param array $documents
+     * Le tenant_id est automatiquement extrait du JWT - ne pas le fournir dans la requête
+     *
+     * @param array $documents Liste des documents à indexer (max 100)
      */
-    public function __construct(?string $tenantId = null, array $documents = [])
+    public function __construct(array $documents = [])
     {
-        $this->setTenantId($tenantId);
         $this->setDocuments($documents);
-    }
-
-    public function getTenantId(): ?string
-    {
-        return $this->tenantId;
-    }
-
-    public function setTenantId(?string $tenantId): void
-    {
-        if ($tenantId !== null) {
-            $tenantId = trim($tenantId);
-            if (empty($tenantId)) {
-                $tenantId = null;
-            }
-        }
-        $this->tenantId = $tenantId;
     }
 
     /**
@@ -91,16 +74,9 @@ class BulkIndexRequest
 
     public function toArray(): array
     {
-        $result = [
+        return [
             'documents' => array_map(fn($doc) => $doc->toArray(), $this->documents),
         ];
-
-        // N'inclure tenant_id que s'il est défini (pour compatibilité ascendante)
-        if ($this->tenantId !== null) {
-            $result['tenant_id'] = $this->tenantId;
-        }
-
-        return $result;
     }
 
     public static function fromArray(array $data): self
@@ -110,6 +86,6 @@ class BulkIndexRequest
             $documents[] = IndexDocumentRequest::fromArray($documentData);
         }
 
-        return new self($data['tenant_id'] ?? null, $documents);
+        return new self($documents);
     }
 }
