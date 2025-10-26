@@ -343,12 +343,12 @@ class RagClient
     }
 
     /**
-     * Obtient des statistiques d'indexation
+     * Obtient des statistiques d'indexation - le tenant_id est extrait du JWT
      */
-    public function getIndexingStats(string $tenantId): array
+    public function getIndexingStats(): array
     {
         try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/index/stats/' . urlencode($tenantId), [
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/index/stats', [
                 'headers' => $this->authenticator->getHeaders(),
             ]);
 
