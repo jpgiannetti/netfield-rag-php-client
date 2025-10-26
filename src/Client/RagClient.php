@@ -20,6 +20,8 @@ use Psr\Log\NullLogger;
 
 class RagClient
 {
+    use ErrorMessageExtractorTrait;
+
     private Client $httpClient;
     private JwtAuthenticator $authenticator;
     private LoggerInterface $logger;
