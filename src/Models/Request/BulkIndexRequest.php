@@ -8,25 +8,31 @@ use Netfield\RagClient\Exception\RagApiException;
 
 class BulkIndexRequest
 {
-    private string $tenantId;
+    private ?string $tenantId;
     private array $documents;
 
-    public function __construct(string $tenantId, array $documents = [])
+    /**
+     * @param string|null $tenantId Optionnel - sera extrait du JWT si null
+     * @param array $documents
+     */
+    public function __construct(?string $tenantId = null, array $documents = [])
     {
         $this->setTenantId($tenantId);
         $this->setDocuments($documents);
     }
 
-    public function getTenantId(): string
+    public function getTenantId(): ?string
     {
         return $this->tenantId;
     }
 
-    public function setTenantId(string $tenantId): void
+    public function setTenantId(?string $tenantId): void
     {
-        $tenantId = trim((string)$tenantId);
-        if (empty($tenantId)) {
-            throw new RagApiException('tenant_id is required');
+        if ($tenantId !== null) {
+            $tenantId = trim($tenantId);
+            if (empty($tenantId)) {
+                $tenantId = null;
+            }
         }
         $this->tenantId = $tenantId;
     }
@@ -85,10 +91,16 @@ class BulkIndexRequest
 
     public function toArray(): array
     {
-        return [
-            'tenant_id' => $this->tenantId,
+        $result = [
             'documents' => array_map(fn($doc) => $doc->toArray(), $this->documents),
         ];
+
+        // N'inclure tenant_id que s'il est défini (pour compatibilité ascendante)
+        if ($this->tenantId !== null) {
+            $result['tenant_id'] = $this->tenantId;
+        }
+
+        return $result;
     }
 
     public static function fromArray(array $data): self
@@ -98,6 +110,6 @@ class BulkIndexRequest
             $documents[] = IndexDocumentRequest::fromArray($documentData);
         }
 
-        return new self($data['tenant_id'], $documents);
+        return new self($data['tenant_id'] ?? null, $documents);
     }
 }

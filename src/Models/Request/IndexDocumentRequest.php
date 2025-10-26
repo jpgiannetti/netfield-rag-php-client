@@ -9,15 +9,22 @@ use Netfield\RagClient\Exception\RagApiException;
 class IndexDocumentRequest
 {
     private string $documentId;
-    private string $tenantId;
+    private ?string $tenantId;
     private ?string $content;
     private DocumentInfo $documentInfo;
     private ?array $metadata;
 
+    /**
+     * @param string $documentId
+     * @param string|null $tenantId Optionnel - sera extrait du JWT si null
+     * @param DocumentInfo $documentInfo
+     * @param string|null $content
+     * @param array|null $metadata
+     */
     public function __construct(
         string $documentId,
-        string $tenantId,
-        DocumentInfo $documentInfo,
+        ?string $tenantId = null,
+        DocumentInfo $documentInfo = null,
         ?string $content = null,
         ?array $metadata = null
     ) {
@@ -42,16 +49,18 @@ class IndexDocumentRequest
         $this->documentId = $documentId;
     }
 
-    public function getTenantId(): string
+    public function getTenantId(): ?string
     {
         return $this->tenantId;
     }
 
-    public function setTenantId(string $tenantId): void
+    public function setTenantId(?string $tenantId): void
     {
-        $tenantId = trim((string)$tenantId);
-        if (empty($tenantId)) {
-            throw new RagApiException('tenant_id is required');
+        if ($tenantId !== null) {
+            $tenantId = trim($tenantId);
+            if (empty($tenantId)) {
+                $tenantId = null;
+            }
         }
         $this->tenantId = $tenantId;
     }
@@ -90,9 +99,13 @@ class IndexDocumentRequest
     {
         $data = [
             'document_id' => $this->documentId,
-            'tenant_id' => $this->tenantId,
             'document_info' => $this->documentInfo->toArray(),
         ];
+
+        // N'inclure tenant_id que s'il est défini (pour compatibilité ascendante)
+        if ($this->tenantId !== null) {
+            $data['tenant_id'] = $this->tenantId;
+        }
 
         if ($this->content !== null) {
             $data['content'] = $this->content;
@@ -111,7 +124,7 @@ class IndexDocumentRequest
 
         return new self(
             $data['document_id'],
-            $data['tenant_id'],
+            $data['tenant_id'] ?? null,
             $documentInfo,
             $data['content'] ?? null,
             $data['metadata'] ?? null
