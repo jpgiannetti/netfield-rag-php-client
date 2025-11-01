@@ -91,7 +91,6 @@ class RagClientIntegrationTest extends TestCase
 
         $request = new IndexDocumentRequest(
             documentId: 'integration-test-doc-' . uniqid(),
-            tenantId: 'test-tenant',
             documentInfo: $documentInfo,
             content: 'This is a test document for integration testing. It contains sample content to verify the indexing process.',
             metadata: [
@@ -126,7 +125,6 @@ class RagClientIntegrationTest extends TestCase
 
             $documents[] = new IndexDocumentRequest(
                 documentId: 'bulk-test-doc-' . $i . '-' . uniqid(),
-                tenantId: 'test-tenant',
                 documentInfo: $documentInfo,
                 content: "This is bulk test document number $i with sample content for testing.",
                 metadata: [
@@ -188,7 +186,6 @@ class RagClientIntegrationTest extends TestCase
 
         $originalRequest = new IndexDocumentRequest(
             documentId: $documentId,
-            tenantId: 'test-tenant',
             documentInfo: $originalInfo,
             content: 'Original document content',
             metadata: ['version' => 'original']
@@ -209,7 +206,6 @@ class RagClientIntegrationTest extends TestCase
 
         $updateRequest = new IndexDocumentRequest(
             documentId: $documentId,
-            tenantId: 'test-tenant',
             documentInfo: $updatedInfo,
             content: 'Updated document content with new information',
             metadata: ['version' => 'updated', 'modified' => true]
@@ -235,7 +231,6 @@ class RagClientIntegrationTest extends TestCase
 
         $indexRequest = new IndexDocumentRequest(
             documentId: $documentId,
-            tenantId: 'test-tenant',
             documentInfo: $documentInfo,
             content: 'This document will be deleted'
         );
@@ -311,7 +306,6 @@ class RagClientIntegrationTest extends TestCase
 
         $indexRequest = new IndexDocumentRequest(
             documentId: $documentId,
-            tenantId: 'test-tenant',
             documentInfo: $documentInfo,
             content: 'This document is used for end-to-end testing. It contains information about the RAG system testing process and validation procedures.',
             metadata: [

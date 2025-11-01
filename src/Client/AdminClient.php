@@ -18,6 +18,8 @@ use Psr\Log\NullLogger;
  */
 class AdminClient
 {
+    use ErrorMessageExtractorTrait;
+
     private Client $httpClient;
     private JwtAuthenticator $authenticator;
     private LoggerInterface $logger;
