@@ -140,6 +140,14 @@ class RagClient
 
     /**
      * Indexe un document unique
+     *
+     * IMPORTANT: Les métadonnées doc_type et category sont OBLIGATOIRES.
+     * Vous DEVEZ appeler classifyDocument() avant cette méthode, ou utiliser
+     * classifyAndIndexDocument() qui effectue les deux opérations.
+     *
+     * @param IndexDocumentRequest $request Requête d'indexation avec metadata.doc_type et metadata.category
+     * @return IndexResponse Réponse d'indexation
+     * @throws RagApiException Si doc_type ou category manquants, ou si l'indexation échoue
      */
     public function indexDocument(IndexDocumentRequest $request): IndexResponse
     {
@@ -175,7 +183,90 @@ class RagClient
     }
 
     /**
+     * Classifie ET indexe un document en une seule opération (helper method)
+     *
+     * Workflow complet en 2 étapes automatiques:
+     * 1. Classification via DIS pour obtenir doc_type et category
+     * 2. Indexation avec métadonnées enrichies
+     *
+     * @param IndexDocumentRequest $request Requête d'indexation (doc_type/category seront ajoutés automatiquement)
+     * @return array Résultat avec:
+     *   - classification: Résultat de la classification
+     *   - indexation: IndexResponse de l'indexation
+     *
+     * @throws RagApiException Si la classification ou l'indexation échoue
+     */
+    public function classifyAndIndexDocument(IndexDocumentRequest $request): array
+    {
+        try {
+            $this->logger->info('Classify and index document', ['document_id' => $request->getDocumentId()]);
+
+            // Étape 1: Classification via DIS
+            $classification = $this->classifyDocument(
+                $request->getContent(),
+                $request->getDocumentInfo()?->getTitle(),
+                $request->getMetadata()
+            );
+
+            $this->logger->debug('Classification result', [
+                'doc_type' => $classification['doc_type'],
+                'category' => $classification['category'],
+                'confidence' => $classification['confidence']
+            ]);
+
+            // Étape 2: Enrichir les métadonnées avec la classification
+            $enrichedMetadata = array_merge(
+                $request->getMetadata() ?? [],
+                [
+                    'doc_type' => $classification['doc_type'],
+                    'category' => $classification['category'],
+                    'classification_confidence' => $classification['confidence'],
+                ],
+                $classification['enriched_metadata'] ?? []
+            );
+
+            if (isset($classification['subtype'])) {
+                $enrichedMetadata['subtype'] = $classification['subtype'];
+            }
+
+            // Créer une nouvelle requête avec métadonnées enrichies
+            $enrichedRequest = new IndexDocumentRequest(
+                $request->getDocumentId(),
+                $request->getContent(),
+                $enrichedMetadata,
+                $request->getDocumentInfo()
+            );
+
+            // Étape 3: Indexation avec métadonnées complètes
+            $indexResponse = $this->indexDocument($enrichedRequest);
+
+            return [
+                'classification' => $classification,
+                'indexation' => $indexResponse,
+            ];
+        } catch (RagApiException $e) {
+            // Re-throw as-is
+            throw $e;
+        } catch (\Exception $e) {
+            $this->logger->error('Classify and index failed', ['error' => $e->getMessage()]);
+            throw new RagApiException(
+                'Failed to classify and index document: ' . $e->getMessage(),
+                0,
+                $e
+            );
+        }
+    }
+
+    /**
      * Indexation en lot
+     *
+     * IMPORTANT: Chaque document DOIT avoir doc_type et category dans ses métadonnées.
+     * Utilisez classifyAndBulkIndexDocuments() pour classifier automatiquement tous
+     * les documents avant indexation.
+     *
+     * @param BulkIndexRequest $request Requête avec liste de documents pré-classifiés
+     * @return BulkIndexResponse Réponse avec statistiques d'indexation
+     * @throws RagApiException Si des documents n'ont pas doc_type/category, ou si l'indexation échoue
      */
     public function bulkIndexDocuments(BulkIndexRequest $request): BulkIndexResponse
     {
@@ -211,7 +302,106 @@ class RagClient
     }
 
     /**
+     * Classifie ET indexe plusieurs documents en lot (helper method)
+     *
+     * Workflow complet pour chaque document:
+     * 1. Classification via DIS
+     * 2. Enrichissement des métadonnées
+     * 3. Indexation batch avec métadonnées complètes
+     *
+     * @param BulkIndexRequest $request Requête avec documents à classifier et indexer
+     * @return array Résultat avec:
+     *   - classifications: Array de résultats de classification
+     *   - bulk_response: BulkIndexResponse de l'indexation
+     *
+     * @throws RagApiException Si la classification ou l'indexation échoue
+     */
+    public function classifyAndBulkIndexDocuments(BulkIndexRequest $request): array
+    {
+        try {
+            $documents = $request->getDocuments();
+            $this->logger->info('Classify and bulk index documents', ['count' => count($documents)]);
+
+            $classifications = [];
+            $enrichedDocuments = [];
+
+            // Étape 1: Classifier chaque document
+            foreach ($documents as $doc) {
+                try {
+                    $classification = $this->classifyDocument(
+                        $doc->getContent(),
+                        $doc->getDocumentInfo()?->getTitle(),
+                        $doc->getMetadata()
+                    );
+
+                    $classifications[] = [
+                        'document_id' => $doc->getDocumentId(),
+                        'doc_type' => $classification['doc_type'],
+                        'category' => $classification['category'],
+                        'confidence' => $classification['confidence'],
+                    ];
+
+                    // Enrichir les métadonnées
+                    $enrichedMetadata = array_merge(
+                        $doc->getMetadata() ?? [],
+                        [
+                            'doc_type' => $classification['doc_type'],
+                            'category' => $classification['category'],
+                            'classification_confidence' => $classification['confidence'],
+                        ],
+                        $classification['enriched_metadata'] ?? []
+                    );
+
+                    if (isset($classification['subtype'])) {
+                        $enrichedMetadata['subtype'] = $classification['subtype'];
+                    }
+
+                    $enrichedDocuments[] = new IndexDocumentRequest(
+                        $doc->getDocumentId(),
+                        $doc->getContent(),
+                        $enrichedMetadata,
+                        $doc->getDocumentInfo()
+                    );
+                } catch (RagApiException $e) {
+                    $this->logger->error('Classification failed for document', [
+                        'document_id' => $doc->getDocumentId(),
+                        'error' => $e->getMessage()
+                    ]);
+                    throw $e;
+                }
+            }
+
+            // Étape 2: Indexation batch avec métadonnées enrichies
+            $enrichedRequest = new BulkIndexRequest($enrichedDocuments);
+            $bulkResponse = $this->bulkIndexDocuments($enrichedRequest);
+
+            return [
+                'classifications' => $classifications,
+                'bulk_response' => $bulkResponse,
+            ];
+        } catch (RagApiException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            $this->logger->error('Classify and bulk index failed', ['error' => $e->getMessage()]);
+            throw new RagApiException(
+                'Failed to classify and bulk index documents: ' . $e->getMessage(),
+                0,
+                $e
+            );
+        }
+    }
+
+    /**
      * Met à jour un document
+     *
+     * IMPORTANT: Si vous modifiez le contenu (content), doc_type et category sont OBLIGATOIRES
+     * dans les métadonnées. Reclassifiez le document via classifyDocument() avant l'update,
+     * ou utilisez classifyAndUpdateDocument().
+     *
+     * @param string $documentId ID du document à mettre à jour
+     * @param IndexDocumentRequest $request Données de mise à jour
+     * @return IndexResponse Réponse de mise à jour
+     * @throws RagApiException Si contenu modifié sans doc_type/category, ou si la mise à jour échoue
      */
     public function updateDocument(string $documentId, IndexDocumentRequest $request): IndexResponse
     {
@@ -242,6 +432,82 @@ class RagClient
                 null,
                 $errorCode,
                 $errorData
+            );
+        }
+    }
+
+    /**
+     * Reclassifie ET met à jour un document (helper method)
+     *
+     * Workflow complet si le contenu est modifié:
+     * 1. Reclassification via DIS
+     * 2. Enrichissement des métadonnées
+     * 3. Mise à jour avec métadonnées complètes
+     *
+     * @param string $documentId ID du document à mettre à jour
+     * @param IndexDocumentRequest $request Données de mise à jour
+     * @return array Résultat avec:
+     *   - classification: Résultat de la reclassification
+     *   - update: IndexResponse de la mise à jour
+     *
+     * @throws RagApiException Si la classification ou la mise à jour échoue
+     */
+    public function classifyAndUpdateDocument(string $documentId, IndexDocumentRequest $request): array
+    {
+        try {
+            $this->logger->info('Classify and update document', ['document_id' => $documentId]);
+
+            // Reclassifier le document
+            $classification = $this->classifyDocument(
+                $request->getContent(),
+                $request->getDocumentInfo()?->getTitle(),
+                $request->getMetadata()
+            );
+
+            $this->logger->debug('Reclassification result', [
+                'doc_type' => $classification['doc_type'],
+                'category' => $classification['category'],
+                'confidence' => $classification['confidence']
+            ]);
+
+            // Enrichir les métadonnées
+            $enrichedMetadata = array_merge(
+                $request->getMetadata() ?? [],
+                [
+                    'doc_type' => $classification['doc_type'],
+                    'category' => $classification['category'],
+                    'classification_confidence' => $classification['confidence'],
+                ],
+                $classification['enriched_metadata'] ?? []
+            );
+
+            if (isset($classification['subtype'])) {
+                $enrichedMetadata['subtype'] = $classification['subtype'];
+            }
+
+            // Créer requête enrichie
+            $enrichedRequest = new IndexDocumentRequest(
+                $request->getDocumentId(),
+                $request->getContent(),
+                $enrichedMetadata,
+                $request->getDocumentInfo()
+            );
+
+            // Mettre à jour avec métadonnées enrichies
+            $updateResponse = $this->updateDocument($documentId, $enrichedRequest);
+
+            return [
+                'classification' => $classification,
+                'update' => $updateResponse,
+            ];
+        } catch (RagApiException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            $this->logger->error('Classify and update failed', ['error' => $e->getMessage()]);
+            throw new RagApiException(
+                'Failed to classify and update document: ' . $e->getMessage(),
+                0,
+                $e
             );
         }
     }
@@ -411,19 +677,40 @@ class RagClient
     }
 
     /**
-     * Classifie automatiquement un document
+     * Classifie automatiquement un document via le module DIS (Document Intelligence Service)
+     *
+     * REQUIS avant indexation - cette méthode DOIT être appelée avant indexDocument()
+     * ou bulkIndexDocuments() pour obtenir les métadonnées obligatoires.
+     *
+     * @param string $content Contenu textuel du document (OCR)
+     * @param string|null $title Titre optionnel du document
+     * @param array|null $metadata Métadonnées additionnelles optionnelles
+     *
+     * @return array Résultat de classification avec:
+     *   - doc_type: Type de document (invoice, contract, etc.)
+     *   - category: Catégorie (comptabilite, juridique, etc.)
+     *   - confidence: Score de confiance (0.0-1.0)
+     *   - subtype: Sous-type optionnel
+     *   - enriched_metadata: Métadonnées enrichies extraites
+     *   - processing_time_ms: Temps de traitement
+     *
+     * @throws RagApiException Si la classification échoue
      */
-    public function classifyDocument(string $content, ?string $title = null): array
+    public function classifyDocument(string $content, ?string $title = null, ?array $metadata = null): array
     {
         try {
-            $this->logger->info('Classifying document', ['content_length' => strlen($content)]);
+            $this->logger->info('Classifying document via DIS', ['content_length' => strlen($content)]);
 
             $payload = ['content' => $content];
             if ($title !== null) {
                 $payload['title'] = $title;
             }
+            if ($metadata !== null) {
+                $payload['metadata'] = $metadata;
+            }
 
-            $response = $this->httpClient->post($this->baseUrl . '/api/v1/classification/classify', [
+            // 🆕 Appel au nouveau endpoint DIS (/internal/dis/v1/classify)
+            $response = $this->httpClient->post($this->baseUrl . '/internal/dis/v1/classify', [
                 'headers' => $this->authenticator->getHeaders(),
                 'json' => $payload,
             ]);
