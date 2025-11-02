@@ -7,6 +7,7 @@ namespace Netfield\RagClient;
 use GuzzleHttp\Client;
 use Netfield\RagClient\Auth\JwtAuthenticator;
 use Netfield\RagClient\Client\RagClient;
+use Netfield\RagClient\Client\DisClient;
 use Netfield\RagClient\Client\AdminClient;
 use Netfield\RagClient\Client\OrganizationClient;
 use Psr\Log\LoggerInterface;
@@ -107,5 +108,41 @@ class RagClientFactory
     ): OrganizationClient {
         $token = JwtAuthenticator::generateOrganizationTestToken($organizationId, $secretKey);
         return new OrganizationClient($baseUrl, $token);
+    }
+
+    /**
+     * Crée un client DIS (Document Intelligence Service) pour la classification
+     */
+    public static function createDisClient(string $baseUrl, string $jwtToken): DisClient
+    {
+        $authenticator = new JwtAuthenticator($jwtToken);
+        return new DisClient($baseUrl, $authenticator);
+    }
+
+    /**
+     * Crée un client DIS avec token de test
+     */
+    public static function createDisWithTestToken(
+        string $baseUrl,
+        string $tenantId,
+        string $secretKey = 'super-secret-jwt-key-change-in-production-2024'
+    ): DisClient {
+        $token = JwtAuthenticator::generateTestToken($tenantId, $secretKey);
+        $authenticator = new JwtAuthenticator($token);
+        return new DisClient($baseUrl, $authenticator);
+    }
+
+    /**
+     * Crée un client DIS avec configuration personnalisée
+     */
+    public static function createDisCustom(
+        string $baseUrl,
+        string $jwtToken,
+        array $httpOptions = [],
+        ?LoggerInterface $logger = null
+    ): DisClient {
+        $httpClient = new Client($httpOptions);
+        $authenticator = new JwtAuthenticator($jwtToken);
+        return new DisClient($baseUrl, $authenticator, $httpClient, $logger);
     }
 }

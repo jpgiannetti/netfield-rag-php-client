@@ -45,35 +45,78 @@ $client = RagClientFactory::createWithTestToken(
 );
 ```
 
-### 2. Indexer un Document
+### 2. Classifier un Document (DIS - Document Intelligence Service)
+
+```php
+use Netfield\RagClient\RagClientFactory;
+
+// Créer le client DIS pour la classification
+$disClient = RagClientFactory::createDisClient(
+    'http://localhost:8888',
+    'your-jwt-token'
+);
+
+// Classifier un document pour obtenir le type et la catégorie
+$classification = $disClient->classifyDocument(
+    content: 'Facture n° 2025-001\nMontant: 1000€...',
+    title: 'Facture January 2025',
+    metadata: ['source' => 'scan']
+);
+
+echo "Type: {$classification['doc_type']}\n";        // Ex: 'invoice'
+echo "Catégorie: {$classification['category']}\n";   // Ex: 'comptabilite'
+echo "Confiance: {$classification['confidence']}\n"; // Ex: 0.95
+```
+
+### 3. Indexer un Document
 
 ```php
 use Netfield\RagClient\Models\Request\IndexDocumentRequest;
 use Netfield\RagClient\Models\Request\DocumentInfo;
 
+// Étape 1: Classifier le document via DIS
+$disClient = RagClientFactory::createDisClient(
+    'http://localhost:8888',
+    'your-jwt-token'
+);
+
+$classification = $disClient->classifyDocument(
+    content: 'Contenu du document à indexer...',
+    title: 'Mon Document'
+);
+
+// Étape 2: Indexer avec les métadonnées enrichies
+$ragClient = RagClientFactory::create(
+    'http://localhost:8888',
+    'your-jwt-token'
+);
+
 $request = new IndexDocumentRequest(
     document_id: 'doc_001',
-    client_id: 'my_client',
     content: 'Contenu du document à indexer...',
-    document_info: new DocumentInfo(
-        title: 'Mon Document', 
-        creation_date: '2025-01-15 10:30:00'
+    metadata: array_merge(
+        [
+            'doc_type' => $classification['doc_type'],
+            'category' => $classification['category'],
+            'classification_confidence' => $classification['confidence']
+        ],
+        $classification['enriched_metadata'] ?? []
     ),
-    metadata: [
-        'type' => 'guide',
-        'category' => 'documentation'
-    ]
+    document_info: new DocumentInfo(
+        title: 'Mon Document',
+        creation_date: '2025-01-15 10:30:00'
+    )
 );
 
 try {
-    $response = $client->indexDocument($request);
+    $response = $ragClient->indexDocument($request);
     echo "Document indexé: {$response->document_id}\n";
 } catch (Exception $e) {
     echo "Erreur: {$e->getMessage()}\n";
 }
 ```
 
-### 3. Effectuer une Recherche
+### 4. Effectuer une Recherche
 
 ```php
 use Netfield\RagClient\Models\Request\AskRequest;
@@ -95,7 +138,7 @@ try {
 }
 ```
 
-### 4. Configuration via Variables d'Environnement
+### 5. Configuration via Variables d'Environnement
 
 ```php
 // .env
@@ -110,6 +153,77 @@ $client = RagClientFactory::createFromEnv();
 ```
 
 ## 🔧 Fonctionnalités Avancées
+
+### Client DIS - Classification de Documents
+
+Le `DisClient` expose les fonctionnalités du Document Intelligence Service (DIS), un module séparé dédié à la classification et l'extraction de métadonnées.
+
+#### Classification Simple
+
+```php
+use Netfield\RagClient\RagClientFactory;
+
+$disClient = RagClientFactory::createDisClient(
+    'http://localhost:8888',
+    'your-jwt-token'
+);
+
+$classification = $disClient->classifyDocument(
+    content: $documentContent,
+    title: 'Optional Title',
+    metadata: ['optional' => 'metadata']
+);
+
+// Résultat:
+// - doc_type: Type de document (invoice, contract, etc.)
+// - category: Catégorie (comptabilite, juridique, etc.)
+// - confidence: Score de confiance (0.0-1.0)
+// - subtype: Sous-type optionnel
+// - enriched_metadata: Métadonnées extraites automatiquement
+```
+
+#### Autres Méthodes DIS
+
+```php
+// Extraction de métadonnées pour un type spécifique
+$metadata = $disClient->extractMetadata(
+    content: $documentContent,
+    docType: 'invoice'
+);
+
+// Récupérer la taxonomie complète
+$taxonomy = $disClient->getTaxonomyInfo();
+
+// Récupérer les champs filtrables pour un type
+$fields = $disClient->getFilterableFields('invoice');
+
+// Récupérer les champs de métadonnées communs
+$commonFields = $disClient->getCommonMetadataFields();
+```
+
+#### Gestion des Erreurs DIS
+
+```php
+use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\ErrorCode;
+
+try {
+    $classification = $disClient->classifyDocument($content);
+} catch (RagApiException $e) {
+    // Codes d'erreur spécifiques DIS
+    switch ($e->getErrorCode()) {
+        case ErrorCode::CLASSIFY_CONTENT_EMPTY:
+            echo "Contenu vide ou trop court\n";
+            break;
+        case ErrorCode::CLASSIFY_FAILED:
+            echo "Échec de la classification\n";
+            break;
+        case ErrorCode::CLASSIFY_TAXONOMY_NOT_FOUND:
+            echo "Taxonomie non trouvée\n";
+            break;
+    }
+}
+```
 
 ### Configuration Personnalisée
 
@@ -232,8 +346,14 @@ $client = new RagClient(
 ```
 src/
 ├── Auth/              # Authentification JWT
-├── Client/            # Client principal
+├── Client/            # Clients API
+│   ├── RagClient.php          # Client RAG (Q&A et indexation)
+│   ├── DisClient.php          # Client DIS (classification)
+│   ├── AdminClient.php        # Client Admin (gestion organisations)
+│   └── OrganizationClient.php # Client Organisation (gestion clients)
 ├── Exception/         # Exceptions personnalisées
+│   ├── RagApiException.php    # Exception base avec erreur standardisée
+│   └── ErrorCode.php          # Codes d'erreur (CLASSIFY_*, INDEX_*, etc.)
 ├── Models/            # Modèles de données
 │   ├── Request/       # Requêtes API
 │   └── Response/      # Réponses API
