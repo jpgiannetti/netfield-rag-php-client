@@ -18,10 +18,10 @@ use Psr\Log\NullLogger;
  * de métadonnées du service DIS (module séparé de l'API RAG).
  *
  * ENDPOINTS DIS:
- * - POST /api/v1/dis/classify : Classification synchrone (public si DIS_PUBLIC_API_ENABLED=true)
- * - POST /api/v1/internal/dis/classify : Classification synchrone (interne, défaut)
- * - POST /api/v1/internal/dis/classify/batch : Classification batch asynchrone
- * - GET /api/v1/internal/dis/jobs/{job_id}/status : Statut job batch
+ * - POST /api/v1/dis/classify : Classification synchrone d'un document
+ * - POST /api/v1/dis/classify/batch : Classification batch asynchrone
+ * - GET /api/v1/dis/jobs/{job_id}/status : Statut d'un job batch
+ * - GET /api/v1/dis/health : Health check DIS (public)
  *
  * AUTHENTIFICATION:
  * - Tous les endpoints DIS (sauf /health) sont protégés par JWT via Gateway Auth Middleware
@@ -56,7 +56,7 @@ class DisClient
      * Analyse le contenu et retourne le type de document (doc_type),
      * la catégorie, et les métadonnées enrichies.
      *
-     * ENDPOINT: POST /internal/dis/v1/classify
+     * ENDPOINT: POST /api/v1/dis/classify
      *
      * @param string $content Contenu textuel du document (requis, min 10 caractères)
      * @param string|null $title Titre du document (optionnel, améliore la classification)
@@ -83,8 +83,8 @@ class DisClient
                 $payload['metadata'] = $metadata;
             }
 
-            // Appel au endpoint DIS interne
-            $response = $this->httpClient->post($this->baseUrl . '/internal/dis/v1/classify', [
+            // Appel au endpoint DIS (protégé par JWT)
+            $response = $this->httpClient->post($this->baseUrl . '/api/v1/dis/classify', [
                 'headers' => $this->authenticator->getHeaders(),
                 'json' => $payload,
             ]);
