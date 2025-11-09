@@ -19,8 +19,8 @@ use Psr\Log\NullLogger;
  *
  * ENDPOINTS DIS:
  * - POST /api/v1/dis/classify : Classification synchrone d'un document
- * - POST /api/v1/dis/classify/batch : Classification batch asynchrone
- * - GET /api/v1/dis/jobs/{job_id}/status : Statut d'un job batch
+ * - POST /api/v1/dis/classify/bulk : Classification bulk asynchrone
+ * - GET /api/v1/dis/jobs/{job_id}/status : Statut d'un job bulk
  * - GET /api/v1/dis/health : Health check DIS (public)
  *
  * AUTHENTIFICATION:
