@@ -14,10 +14,10 @@
 **CORRIGÉ** ✅:
 ```php
 // AVANT
-throw new RagApiException($errorMessage, $e->getCode(), $e);
+throw new NetfieldApiException($errorMessage, $e->getCode(), $e);
 
 // APRÈS (ligne 70 - CORRIGÉ)
-throw new RagApiException('Failed to create client token: ' . $errorMessage, $e->getCode(), $e);
+throw new NetfieldApiException('Failed to create client token: ' . $errorMessage, $e->getCode(), $e);
 ```
 
 **Statut**: ✅ Résolu - Cohérence des messages d'erreur restaurée
@@ -66,7 +66,7 @@ $body = (string) $response->getBody(); // Cast au lieu de getContents()
 **Observation**: Utilisation de `$e->getCode()` comme code HTTP
 
 ```php
-throw new RagApiException($errorMessage, $e->getCode(), $e);
+throw new NetfieldApiException($errorMessage, $e->getCode(), $e);
 ```
 
 **Point à vérifier**:
@@ -96,7 +96,7 @@ return [
 
 **Recommandation**: Standardiser TOUS les messages avec le format:
 ```php
-throw new RagApiException('Action description: ' . $errorMessage, $e->getCode(), $e);
+throw new NetfieldApiException('Action description: ' . $errorMessage, $e->getCode(), $e);
 ```
 
 ---
@@ -123,7 +123,7 @@ throw new RagApiException('Action description: ' . $errorMessage, $e->getCode(),
 3. ✅ Stream body géré correctement
 
 ### ℹ️ PRIORITÉ 2 - Optionnel (qualité du code)
-- Vérifier cohérence des préfixes dans tous les fichiers clients (RagClient: 33 usages, AdminClient: 11 usages)
+- Vérifier cohérence des préfixes dans tous les fichiers clients (NetfieldClient: 33 usages, AdminClient: 11 usages)
 - Ajouter des tests unitaires spécifiques pour `extractErrorMessage()`
   - Réponse JSON valide avec `error`
   - Réponse JSON valide avec `message`
@@ -161,5 +161,5 @@ private function extractErrorMessage(GuzzleException $e): string
 
 ### OrganizationClient.php - Ligne 70
 ```php
-throw new RagApiException('Failed to create client token: ' . $errorMessage, $e->getCode(), $e);
+throw new NetfieldApiException('Failed to create client token: ' . $errorMessage, $e->getCode(), $e);
 ```

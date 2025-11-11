@@ -7,7 +7,7 @@ namespace Netfield\RagClient\Client;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Models\Request\AskRequest;
 use Netfield\RagClient\Models\Request\IndexDocumentRequest;
 use Netfield\RagClient\Models\Request\BulkIndexRequest;
@@ -18,7 +18,7 @@ use Netfield\RagClient\Models\Response\HealthResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-class RagClient
+class NetfieldClient
 {
     use ErrorMessageExtractorTrait;
 
@@ -47,7 +47,7 @@ class RagClient
     }
 
     /**
-     * Pose une question au système RAG
+     * Pose une question au système RAG (module RAG)
      */
     public function ask(AskRequest $request): AskResponse
     {
@@ -62,7 +62,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return AskResponse::fromArray($data);
@@ -71,7 +71,7 @@ class RagClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('RAG query failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to execute RAG query: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -127,7 +127,7 @@ class RagClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Streaming RAG query failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to execute streaming RAG query: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -146,7 +146,7 @@ class RagClient
      *
      * @param IndexDocumentRequest $request Requête d'indexation avec metadata.doc_type et metadata.category
      * @return IndexResponse Réponse d'indexation
-     * @throws RagApiException Si doc_type ou category manquants, ou si l'indexation échoue
+     * @throws NetfieldApiException Si doc_type ou category manquants, ou si l'indexation échoue
      */
     public function indexDocument(IndexDocumentRequest $request): IndexResponse
     {
@@ -161,7 +161,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return IndexResponse::fromArray($data);
@@ -170,7 +170,7 @@ class RagClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Document indexing failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to index document: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -190,7 +190,7 @@ class RagClient
      *
      * @param BulkIndexRequest $request Requête avec liste de documents pré-classifiés
      * @return BulkIndexResponse Réponse avec statistiques d'indexation
-     * @throws RagApiException Si des documents n'ont pas doc_type/category, ou si l'indexation échoue
+     * @throws NetfieldApiException Si des documents n'ont pas doc_type/category, ou si l'indexation échoue
      */
     public function bulkIndexDocuments(BulkIndexRequest $request): BulkIndexResponse
     {
@@ -205,7 +205,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return BulkIndexResponse::fromArray($data);
@@ -214,7 +214,7 @@ class RagClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Bulk indexing failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to bulk index documents: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -235,7 +235,7 @@ class RagClient
      * @param string $documentId ID du document à mettre à jour
      * @param IndexDocumentRequest $request Données de mise à jour
      * @return IndexResponse Réponse de mise à jour
-     * @throws RagApiException Si contenu modifié sans doc_type/category, ou si la mise à jour échoue
+     * @throws NetfieldApiException Si contenu modifié sans doc_type/category, ou si la mise à jour échoue
      */
     public function updateDocument(string $documentId, IndexDocumentRequest $request): IndexResponse
     {
@@ -250,7 +250,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return IndexResponse::fromArray($data);
@@ -259,7 +259,7 @@ class RagClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Document update failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to update document: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -286,7 +286,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -295,7 +295,7 @@ class RagClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Document deletion failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to delete document: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -316,7 +316,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return HealthResponse::fromArray($data);
@@ -324,7 +324,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Health check failed: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -348,7 +348,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -356,7 +356,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get confidence thresholds: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -380,7 +380,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -388,7 +388,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get indexing stats: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -415,7 +415,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -424,7 +424,7 @@ class RagClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Document validation failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to validate documents: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -449,7 +449,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -457,7 +457,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get document validation report: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -481,7 +481,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -489,7 +489,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get validation summary: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -516,7 +516,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -525,7 +525,7 @@ class RagClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Validation query failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to query validation reports: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -554,7 +554,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -562,7 +562,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get errors by field: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -588,7 +588,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -597,7 +597,7 @@ class RagClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Cleanup failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to cleanup old reports: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -621,7 +621,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -629,7 +629,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get UI settings: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -653,7 +653,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -661,7 +661,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get calibration info: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -688,7 +688,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -697,7 +697,7 @@ class RagClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Confidence validation failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to validate response confidence: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -721,7 +721,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -729,7 +729,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get confidence metrics: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -755,7 +755,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get Prometheus metrics: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -779,7 +779,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -787,7 +787,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get detailed health check: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -811,7 +811,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -819,7 +819,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get trace info: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -831,7 +831,7 @@ class RagClient
     }
 
     /**
-     * Résumé des performances du système RAG
+     * Résumé des performances du système RAG (module RAG)
      */
     public function getPerformanceSummary(): array
     {
@@ -843,7 +843,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -851,7 +851,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get performance summary: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -877,7 +877,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -886,7 +886,7 @@ class RagClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Alert test failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to test monitoring alert: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -910,7 +910,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -918,7 +918,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get system status: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -942,7 +942,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -950,7 +950,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get available models: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -962,7 +962,7 @@ class RagClient
     }
 
     /**
-     * Test du pipeline RAG complet avec informations de debug
+     * Test du pipeline RAG complet avec informations de debug (module RAG)
      */
     public function testRagPipeline(AskRequest $request): array
     {
@@ -977,7 +977,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -986,7 +986,7 @@ class RagClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('RAG pipeline test failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to test RAG pipeline: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -998,7 +998,7 @@ class RagClient
     }
 
     /**
-     * Vérifie l'état de santé du système RAG complet
+     * Vérifie l'état de santé du système RAG complet (module RAG)
      */
     public function ragHealthCheck(): array
     {
@@ -1007,7 +1007,7 @@ class RagClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -1015,7 +1015,7 @@ class RagClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'RAG health check failed: ' . $errorMessage,
                 $e->getCode(),
                 $e,

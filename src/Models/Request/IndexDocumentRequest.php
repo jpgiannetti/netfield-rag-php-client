@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Netfield\RagClient\Models\Request;
 
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 
 class IndexDocumentRequest
 {
@@ -42,7 +42,7 @@ class IndexDocumentRequest
     {
         $documentId = trim((string)$documentId);
         if (empty($documentId)) {
-            throw new RagApiException('document_id is required');
+            throw new NetfieldApiException('document_id is required');
         }
         $this->documentId = $documentId;
     }

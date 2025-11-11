@@ -30,16 +30,16 @@ composer install
 <?php
 require 'vendor/autoload.php';
 
-use Netfield\RagClient\RagClientFactory;
+use Netfield\RagClient\NetfieldClientFactory;
 
 // Créer le client avec un token JWT
-$client = RagClientFactory::create(
+$client = NetfieldClientFactory::create(
     'http://localhost:8888/api/v1', 
     'your-jwt-token'
 );
 
 // Ou créer avec un token de test
-$client = RagClientFactory::createWithTestToken(
+$client = NetfieldClientFactory::createWithTestToken(
     'http://localhost:8888/api/v1',
     'test_client'
 );
@@ -48,10 +48,10 @@ $client = RagClientFactory::createWithTestToken(
 ### 2. Classifier un Document (DIS - Document Intelligence Service)
 
 ```php
-use Netfield\RagClient\RagClientFactory;
+use Netfield\RagClient\NetfieldClientFactory;
 
 // Créer le client DIS pour la classification
-$disClient = RagClientFactory::createDisClient(
+$disClient = NetfieldClientFactory::createDisClient(
     'http://localhost:8888',
     'your-jwt-token'
 );
@@ -75,7 +75,7 @@ use Netfield\RagClient\Models\Request\IndexDocumentRequest;
 use Netfield\RagClient\Models\Request\DocumentInfo;
 
 // Étape 1: Classifier le document via DIS
-$disClient = RagClientFactory::createDisClient(
+$disClient = NetfieldClientFactory::createDisClient(
     'http://localhost:8888',
     'your-jwt-token'
 );
@@ -86,7 +86,7 @@ $classification = $disClient->classifyDocument(
 );
 
 // Étape 2: Indexer avec les métadonnées enrichies
-$ragClient = RagClientFactory::create(
+$ragClient = NetfieldClientFactory::create(
     'http://localhost:8888',
     'your-jwt-token'
 );
@@ -142,14 +142,14 @@ try {
 
 ```php
 // .env
-RAG_API_URL=http://localhost:8888/api/v1
-RAG_JWT_TOKEN=your-jwt-token
+NETFIELD_API_URL=http://localhost:8888/api/v1
+NETFIELD_JWT_TOKEN=your-jwt-token
 # OU
-RAG_TENANT_ID=test_client
-RAG_JWT_SECRET=your-secret-key
+NETFIELD_TENANT_ID=test_client
+NETFIELD_JWT_SECRET=your-secret-key
 
 // PHP
-$client = RagClientFactory::createFromEnv();
+$client = NetfieldClientFactory::createFromEnv();
 ```
 
 ## 🔧 Fonctionnalités Avancées
@@ -161,9 +161,9 @@ Le `DisClient` expose les fonctionnalités du Document Intelligence Service (DIS
 #### Classification Simple
 
 ```php
-use Netfield\RagClient\RagClientFactory;
+use Netfield\RagClient\NetfieldClientFactory;
 
-$disClient = RagClientFactory::createDisClient(
+$disClient = NetfieldClientFactory::createDisClient(
     'http://localhost:8888',
     'your-jwt-token'
 );
@@ -204,12 +204,12 @@ $commonFields = $disClient->getCommonMetadataFields();
 #### Gestion des Erreurs DIS
 
 ```php
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Exception\ErrorCode;
 
 try {
     $classification = $disClient->classifyDocument($content);
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     // Codes d'erreur spécifiques DIS
     switch ($e->getErrorCode()) {
         case ErrorCode::CLASSIFY_CONTENT_EMPTY:
@@ -238,7 +238,7 @@ $httpClient = new Client([
 
 $logger = new Logger('rag-client');
 
-$client = RagClientFactory::createCustom(
+$client = NetfieldClientFactory::createCustom(
     baseUrl: 'http://localhost:8888/api/v1',
     jwtToken: 'your-token',
     httpOptions: ['timeout' => 30],
@@ -325,7 +325,7 @@ $token = JwtAuthenticator::generateTestToken(
 ### Configuration Avancée
 
 ```php
-$client = new RagClient(
+$client = new NetfieldClient(
     baseUrl: 'https://api.example.com/rag',
     jwtToken: $token,
     httpClient: new Client([
@@ -347,17 +347,17 @@ $client = new RagClient(
 src/
 ├── Auth/              # Authentification JWT
 ├── Client/            # Clients API
-│   ├── RagClient.php          # Client RAG (Q&A et indexation)
+│   ├── NetfieldClient.php          # Client RAG (Q&A et indexation)
 │   ├── DisClient.php          # Client DIS (classification)
 │   ├── AdminClient.php        # Client Admin (gestion organisations)
 │   └── OrganizationClient.php # Client Organisation (gestion clients)
 ├── Exception/         # Exceptions personnalisées
-│   ├── RagApiException.php    # Exception base avec erreur standardisée
+│   ├── NetfieldApiException.php    # Exception base avec erreur standardisée
 │   └── ErrorCode.php          # Codes d'erreur (CLASSIFY_*, INDEX_*, etc.)
 ├── Models/            # Modèles de données
 │   ├── Request/       # Requêtes API
 │   └── Response/      # Réponses API
-└── RagClientFactory.php  # Factory principal
+└── NetfieldClientFactory.php  # Factory principal
 ```
 
 ### Contribuer
@@ -388,7 +388,7 @@ use Monolog\Handler\StreamHandler;
 $logger = new Logger('rag-client');
 $logger->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 
-$client = RagClientFactory::createCustom(
+$client = NetfieldClientFactory::createCustom(
     baseUrl: 'http://localhost:8888/api/v1',
     jwtToken: $token,
     logger: $logger
@@ -397,18 +397,18 @@ $client = RagClientFactory::createCustom(
 
 ### Gestion des Erreurs
 
-Le client gère automatiquement les codes d'erreur standardisés de l'API RAG (format `UPPER_SNAKE_CASE`).
+Le client gère automatiquement les codes d'erreur standardisés de l'API Netfield (format `UPPER_SNAKE_CASE`).
 
 #### Gestion Simple
 
 ```php
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Exception\ErrorCode;
 
 try {
     $response = $orgClient->createClientToken($request);
     echo "Token créé: {$response->jwt_token}\n";
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     // Accès au code d'erreur standardisé
     echo "Erreur: {$e->getErrorCode()}\n";  // Ex: ORG_CLIENT_ALREADY_EXISTS
     echo "Message: {$e->getMessage()}\n";
@@ -431,7 +431,7 @@ try {
 ```php
 try {
     $response = $orgClient->createClientToken($request);
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     // Traitement conditionnel selon le code d'erreur
     switch ($e->getErrorCode()) {
         case ErrorCode::ORG_CLIENT_ALREADY_EXISTS:
@@ -460,7 +460,7 @@ try {
 ```php
 try {
     $response = $client->indexDocument($document);
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     // Convertir en JSON structuré pour le front-end
     $errorData = $e->toArray();
 
@@ -488,7 +488,7 @@ try {
 ```php
 try {
     $response = $client->ask($question);
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     // Accès aux détails complets de l'erreur
     $errorCode = $e->getErrorCode();          // ORG_CLIENT_ALREADY_EXISTS
     $details = $e->getDetails();               // ['client_name' => 'test', ...]

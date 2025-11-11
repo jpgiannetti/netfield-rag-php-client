@@ -12,7 +12,7 @@ namespace Netfield\RagClient\Exception;
  * UTILISATION:
  *     try {
  *         $client->indexDocument($data);
- *     } catch (RagApiException $e) {
+ *     } catch (NetfieldApiException $e) {
  *         // Vérifier le code d'erreur
  *         if ($e->getErrorCode() === ErrorCode::INDEX_WEAVIATE_CONNECTION_ERROR) {
  *             // Erreur retryable - réessayer
@@ -44,7 +44,7 @@ namespace Netfield\RagClient\Exception;
  *     ErrorCode::needsAuthRefresh($code) - Erreurs nécessitant un refresh du token
  *     ErrorCode::getCategory($code)     - Catégorie de l'erreur (AUTH, INDEX, etc.)
  *
- * MÉTHODES DE RagApiException:
+ * MÉTHODES DE NetfieldApiException:
  *     $e->getErrorCode()      - Code d'erreur UPPER_SNAKE_CASE
  *     $e->getErrorData()      - Données complètes de l'erreur
  *     $e->getDetails()        - Détails additionnels

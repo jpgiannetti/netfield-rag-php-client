@@ -6,59 +6,59 @@ namespace Netfield\RagClient;
 
 use GuzzleHttp\Client;
 use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Client\RagClient;
+use Netfield\RagClient\Client\NetfieldClient;
 use Netfield\RagClient\Client\DisClient;
 use Netfield\RagClient\Client\AdminClient;
 use Netfield\RagClient\Client\OrganizationClient;
 use Psr\Log\LoggerInterface;
 
 /**
- * Factory pour créer facilement des instances de RagClient
+ * Factory pour créer facilement des instances de NetfieldClient
  */
-class RagClientFactory
+class NetfieldClientFactory
 {
     /**
-     * Crée un client RAG avec configuration par défaut
+     * Crée un client Netfield avec configuration par défaut
      */
-    public static function create(string $baseUrl, string $jwtToken): RagClient
+    public static function create(string $baseUrl, string $jwtToken): NetfieldClient
     {
-        return new RagClient($baseUrl, $jwtToken);
+        return new NetfieldClient($baseUrl, $jwtToken);
     }
 
     /**
-     * Crée un client RAG avec token de test
+     * Crée un client Netfield avec token de test
      */
     public static function createWithTestToken(
         string $baseUrl,
         string $tenantId,
         string $secretKey = 'super-secret-jwt-key-change-in-production-2024'
-    ): RagClient {
+    ): NetfieldClient {
         $token = JwtAuthenticator::generateTestToken($tenantId, $secretKey);
-        return new RagClient($baseUrl, $token);
+        return new NetfieldClient($baseUrl, $token);
     }
 
     /**
-     * Crée un client RAG avec configuration personnalisée
+     * Crée un client Netfield avec configuration personnalisée
      */
     public static function createCustom(
         string $baseUrl,
         string $jwtToken,
         array $httpOptions = [],
         ?LoggerInterface $logger = null
-    ): RagClient {
+    ): NetfieldClient {
         $httpClient = new Client($httpOptions);
-        return new RagClient($baseUrl, $jwtToken, $httpClient, $logger);
+        return new NetfieldClient($baseUrl, $jwtToken, $httpClient, $logger);
     }
 
     /**
-     * Crée un client RAG à partir des variables d'environnement
+     * Crée un client Netfield à partir des variables d'environnement
      */
-    public static function createFromEnv(): RagClient
+    public static function createFromEnv(): NetfieldClient
     {
-        $baseUrl = $_ENV['RAG_API_URL'] ?? throw new \InvalidArgumentException('RAG_API_URL environment variable is required');
-        $jwtToken = $_ENV['RAG_JWT_TOKEN'] ?? null;
-        $tenantId = $_ENV['RAG_TENANT_ID'] ?? null;
-        $jwtSecret = $_ENV['RAG_JWT_SECRET'] ?? 'super-secret-jwt-key-change-in-production-2024';
+        $baseUrl = $_ENV['NETFIELD_API_URL'] ?? throw new \InvalidArgumentException('NETFIELD_API_URL environment variable is required');
+        $jwtToken = $_ENV['NETFIELD_JWT_TOKEN'] ?? null;
+        $tenantId = $_ENV['NETFIELD_TENANT_ID'] ?? null;
+        $jwtSecret = $_ENV['NETFIELD_JWT_SECRET'] ?? 'super-secret-jwt-key-change-in-production-2024';
 
         if ($jwtToken) {
             return self::create($baseUrl, $jwtToken);
@@ -68,7 +68,7 @@ class RagClientFactory
             return self::createWithTestToken($baseUrl, $tenantId, $jwtSecret);
         }
 
-        throw new \InvalidArgumentException('Either RAG_JWT_TOKEN or RAG_TENANT_ID environment variable is required');
+        throw new \InvalidArgumentException('Either NETFIELD_JWT_TOKEN or NETFIELD_TENANT_ID environment variable is required');
     }
 
     /**

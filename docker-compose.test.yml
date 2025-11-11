@@ -16,6 +16,9 @@ services:
       - RAG_API_URL=http://rag-api:8080
       - RAG_TENANT_ID=test-tenant
       - RAG_JWT_SECRET=test-secret-jwt-key-for-docker-tests
+      - NETFIELD_API_URL=http://host.docker.internal:8888
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - rag-api
       - wiremock

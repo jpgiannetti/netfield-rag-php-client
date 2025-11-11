@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Netfield\RagClient\Models\Request;
 
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 
 class AskRequest
 {
@@ -28,7 +28,7 @@ class AskRequest
     {
         $question = trim($question);
         if (strlen($question) < 3) {
-            throw new RagApiException('Question must be at least 3 characters long');
+            throw new NetfieldApiException('Question must be at least 3 characters long');
         }
         $this->question = $question;
     }
@@ -41,7 +41,7 @@ class AskRequest
     public function setLimit(int $limit): void
     {
         if ($limit < 1 || $limit > 50) {
-            throw new RagApiException('Limit must be between 1 and 50');
+            throw new NetfieldApiException('Limit must be between 1 and 50');
         }
         $this->limit = $limit;
     }

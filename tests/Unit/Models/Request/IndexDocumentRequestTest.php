@@ -7,7 +7,7 @@ namespace Netfield\RagClient\Tests\Unit\Models\Request;
 use PHPUnit\Framework\TestCase;
 use Netfield\RagClient\Models\Request\IndexDocumentRequest;
 use Netfield\RagClient\Models\Request\DocumentInfo;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 
 class IndexDocumentRequestTest extends TestCase
 {
@@ -72,7 +72,7 @@ class IndexDocumentRequestTest extends TestCase
 
     public function testSetDocumentIdWithEmptyString(): void
     {
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
         $this->expectExceptionMessage('document_id is required');
 
         $request = new IndexDocumentRequest('initial', $this->documentInfo);
@@ -81,7 +81,7 @@ class IndexDocumentRequestTest extends TestCase
 
     public function testSetDocumentIdWithWhitespace(): void
     {
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
         $this->expectExceptionMessage('document_id is required');
 
         $request = new IndexDocumentRequest('initial', $this->documentInfo);
@@ -90,7 +90,7 @@ class IndexDocumentRequestTest extends TestCase
 
     public function testConstructorWithEmptyDocumentId(): void
     {
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
         $this->expectExceptionMessage('document_id is required');
 
         new IndexDocumentRequest('', $this->documentInfo);
@@ -223,7 +223,7 @@ class IndexDocumentRequestTest extends TestCase
 
     public function testFromArrayWithInvalidDocumentId(): void
     {
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
         $this->expectExceptionMessage('document_id is required');
 
         $data = [
@@ -243,7 +243,7 @@ class IndexDocumentRequestTest extends TestCase
     public function testDocumentIdValidation($documentId, bool $shouldPass): void
     {
         if (!$shouldPass) {
-            $this->expectException(RagApiException::class);
+            $this->expectException(NetfieldApiException::class);
             $this->expectExceptionMessage('document_id is required');
         }
 

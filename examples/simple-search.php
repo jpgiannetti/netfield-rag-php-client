@@ -5,16 +5,16 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Netfield\RagClient\RagClientFactory;
+use Netfield\RagClient\NetfieldClientFactory;
 use Netfield\RagClient\Models\Request\AskRequest;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 
 try {
     // Créer le client (utilise les variables d'environnement ou valeurs par défaut)
     $baseUrl = $argv[1] ?? 'http://localhost:8888';
     $tenantId = $argv[2] ?? 'demo-tenant';
     
-    $client = RagClientFactory::createWithTestToken($baseUrl, $tenantId);
+    $client = NetfieldClientFactory::createWithTestToken($baseUrl, $tenantId);
     
     // Vérifier la santé du service
     $health = $client->health();
@@ -58,7 +58,7 @@ try {
         echo "\n" . str_repeat("=", 60) . "\n\n";
     }
     
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     echo "❌ Erreur API RAG: " . $e->getMessage() . "\n";
     exit(1);
 } catch (\Exception $e) {

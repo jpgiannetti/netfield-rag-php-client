@@ -9,7 +9,7 @@ use Netfield\RagClient\Client\OrganizationClient;
 use Netfield\RagClient\Models\Request\CreateClientTokenRequest;
 use Netfield\RagClient\Models\Response\ClientTokenResponse;
 use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 
 class OrganizationClientIntegrationTest extends TestCase
 {
@@ -18,7 +18,7 @@ class OrganizationClientIntegrationTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->baseUrl = $_ENV['RAG_API_URL'] ?? 'http://localhost:8888';
+        $this->baseUrl = $_ENV['NETFIELD_API_URL'] ?? 'http://localhost:8888';
 
         // Generate organization token for testing
         $organizationToken = JwtAuthenticator::generateOrganizationTestToken('org_test_integration');
@@ -54,7 +54,7 @@ class OrganizationClientIntegrationTest extends TestCase
             $this->assertNotEmpty($response->getToken());
             $this->assertGreaterThan(0, $response->getExpiresIn());
             $this->assertEquals(['read', 'write'], $response->getScopes());
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (strpos($e->getMessage(), '403') !== false || strpos($e->getMessage(), '401') !== false) {
                 $this->markTestIncomplete('Organization token creation requires proper authentication - request structure validated');
             } else {
@@ -73,7 +73,7 @@ class OrganizationClientIntegrationTest extends TestCase
             $this->assertArrayHasKey('clients', $clients);
             $this->assertArrayHasKey('total', $clients);
             $this->assertIsArray($clients['clients']);
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (strpos($e->getMessage(), '403') !== false || strpos($e->getMessage(), '401') !== false) {
                 $this->markTestIncomplete('Client listing requires proper authentication - request structure validated');
             } else {
@@ -95,7 +95,7 @@ class OrganizationClientIntegrationTest extends TestCase
                     $this->assertArrayHasKey($key, $info);
                 }
             }
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (strpos($e->getMessage(), '403') !== false || strpos($e->getMessage(), '401') !== false) {
                 $this->markTestIncomplete('Organization info requires proper authentication - request structure validated');
             } else {
@@ -119,7 +119,7 @@ class OrganizationClientIntegrationTest extends TestCase
                 $this->assertArrayHasKey('valid', $result);
                 $this->assertIsBool($result['valid']);
             }
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (
                 strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
@@ -143,7 +143,7 @@ class OrganizationClientIntegrationTest extends TestCase
             if (isset($result['status'])) {
                 $this->assertArrayHasKey('status', $result);
             }
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (
                 strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||

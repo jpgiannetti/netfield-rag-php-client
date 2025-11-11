@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Netfield\RagClient\Models\Request;
 
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 
 class BulkIndexRequest
 {
@@ -34,16 +34,16 @@ class BulkIndexRequest
     public function setDocuments(array $documents): void
     {
         if (empty($documents)) {
-            throw new RagApiException('Documents list cannot be empty');
+            throw new NetfieldApiException('Documents list cannot be empty');
         }
 
         if (count($documents) > 100) {
-            throw new RagApiException('Maximum 100 documents per batch');
+            throw new NetfieldApiException('Maximum 100 documents per batch');
         }
 
         foreach ($documents as $document) {
             if (!$document instanceof IndexDocumentRequest) {
-                throw new RagApiException('All documents must be IndexDocumentRequest instances');
+                throw new NetfieldApiException('All documents must be IndexDocumentRequest instances');
             }
         }
 
@@ -53,7 +53,7 @@ class BulkIndexRequest
     public function addDocument(IndexDocumentRequest $document): void
     {
         if (count($this->documents) >= 100) {
-            throw new RagApiException('Maximum 100 documents per batch');
+            throw new NetfieldApiException('Maximum 100 documents per batch');
         }
 
         $this->documents[] = $document;

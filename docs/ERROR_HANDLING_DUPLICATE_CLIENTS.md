@@ -39,12 +39,12 @@ Lorsque vous tentez de créer un client dupliqué, l'API retourne une réponse H
 ### 1. Détection basique de l'erreur
 
 ```php
-use Netfield\RagClient\RagClient;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\NetfieldClient;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Exception\ErrorCode;
 
 try {
-    $client = new RagClient($apiUrl, $token);
+    $client = new NetfieldClient($apiUrl, $token);
     $response = $client->createClientToken([
         'client_name' => 'Mon Client',
         'client_description' => 'Description du client',
@@ -52,7 +52,7 @@ try {
         'confidentiality_levels' => ['public', 'internal'],
         'expires_in_days' => 365,
     ]);
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     if ($e->getErrorCode() === ErrorCode::ORG_CLIENT_ALREADY_EXISTS) {
         echo "Erreur : Ce nom de client est déjà utilisé dans votre organisation.\n";
         echo "Veuillez choisir un nom différent.\n";
@@ -71,11 +71,11 @@ try {
 ### 2. Gestion avec retry automatique (nom alternatif)
 
 ```php
-use Netfield\RagClient\RagClient;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\NetfieldClient;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Exception\ErrorCode;
 
-function createClientWithFallback(RagClient $client, string $baseName, array $clientData): array
+function createClientWithFallback(NetfieldClient $client, string $baseName, array $clientData): array
 {
     $attempt = 0;
     $maxAttempts = 5;
@@ -86,7 +86,7 @@ function createClientWithFallback(RagClient $client, string $baseName, array $cl
             $clientData['client_name'] = $clientName;
 
             return $client->createClientToken($clientData);
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if ($e->getErrorCode() === ErrorCode::ORG_CLIENT_ALREADY_EXISTS) {
                 $attempt++;
                 if ($attempt >= $maxAttempts) {
@@ -125,11 +125,11 @@ try {
 ### 3. Validation préalable avec liste des clients existants
 
 ```php
-use Netfield\RagClient\RagClient;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\NetfieldClient;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Exception\ErrorCode;
 
-function isClientNameAvailable(RagClient $client, string $clientName): bool
+function isClientNameAvailable(NetfieldClient $client, string $clientName): bool
 {
     try {
         $existingClients = $client->listMyClients();
@@ -141,13 +141,13 @@ function isClientNameAvailable(RagClient $client, string $clientName): bool
         }
 
         return true; // Nom disponible
-    } catch (RagApiException $e) {
+    } catch (NetfieldApiException $e) {
         // En cas d'erreur de récupération, on laisse l'API gérer la validation
         return true;
     }
 }
 
-function createClientSafely(RagClient $client, array $clientData): array
+function createClientSafely(NetfieldClient $client, array $clientData): array
 {
     $clientName = $clientData['client_name'];
 
@@ -160,7 +160,7 @@ function createClientSafely(RagClient $client, array $clientData): array
 
     try {
         return $client->createClientToken($clientData);
-    } catch (RagApiException $e) {
+    } catch (NetfieldApiException $e) {
         if ($e->getErrorCode() === ErrorCode::ORG_CLIENT_ALREADY_EXISTS) {
             // Race condition : le client a été créé entre la vérification et la création
             throw new \RuntimeException(
@@ -177,13 +177,13 @@ function createClientSafely(RagClient $client, array $clientData): array
 ### 4. Logging et monitoring
 
 ```php
-use Netfield\RagClient\RagClient;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\NetfieldClient;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Exception\ErrorCode;
 use Psr\Log\LoggerInterface;
 
 function createClientWithLogging(
-    RagClient $client,
+    NetfieldClient $client,
     array $clientData,
     LoggerInterface $logger
 ): array {
@@ -197,7 +197,7 @@ function createClientWithLogging(
         ]);
 
         return $result;
-    } catch (RagApiException $e) {
+    } catch (NetfieldApiException $e) {
         if ($e->getErrorCode() === ErrorCode::ORG_CLIENT_ALREADY_EXISTS) {
             $logger->warning('Tentative de création de client dupliqué', [
                 'error_code' => $e->getErrorCode(),
@@ -228,7 +228,7 @@ function createClientWithLogging(
 
 ## Propriétés de l'erreur
 
-### Méthodes RagApiException disponibles
+### Méthodes NetfieldApiException disponibles
 
 ```php
 $exception->getCode()           // 409 (HTTP status)

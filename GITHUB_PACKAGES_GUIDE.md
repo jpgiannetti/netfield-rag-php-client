@@ -132,7 +132,7 @@ composer install
 <?php
 require_once 'vendor/autoload.php';
 
-use Netfield\RagClient\RagClient;
+use Netfield\RagClient\NetfieldClient;
 use Netfield\RagClient\Config\ClientConfig;
 use Netfield\RagClient\Auth\JWTAuthProvider;
 
@@ -149,7 +149,7 @@ $authProvider = new JWTAuthProvider(
 );
 
 // Initialisation du client
-$client = new RagClient($config, $authProvider);
+$client = new NetfieldClient($config, $authProvider);
 
 // Utilisation
 $response = $client->ask([

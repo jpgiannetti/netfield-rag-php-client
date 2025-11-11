@@ -10,7 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 use Ged\ApiProblem\ApiProblemExceptionInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class RagApiException extends Exception implements ApiProblemExceptionInterface
+class NetfieldApiException extends Exception implements ApiProblemExceptionInterface
 {
     protected ?array $context;
     private ?string $errorCode;
@@ -31,7 +31,7 @@ class RagApiException extends Exception implements ApiProblemExceptionInterface
     }
 
     /**
-     * Crée une RagApiException depuis une GuzzleException
+     * Crée une NetfieldApiException depuis une GuzzleException
      * Extrait automatiquement le error_code, message et toutes les données de l'API
      *
      * @param GuzzleException $e L'exception Guzzle à wrapper
@@ -78,7 +78,7 @@ class RagApiException extends Exception implements ApiProblemExceptionInterface
             return null;
         }
 
-        // Format standardisé de l'API RAG
+        // Format standardisé de l'API Netfield
         if (isset($data['error_code'])) {
             return [
                 'error_code' => $data['error_code'],

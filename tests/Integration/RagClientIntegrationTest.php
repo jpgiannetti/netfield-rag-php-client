@@ -5,27 +5,27 @@ declare(strict_types=1);
 namespace Netfield\RagClient\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Netfield\RagClient\Client\RagClient;
+use Netfield\RagClient\Client\NetfieldClient;
 use Netfield\RagClient\Auth\JwtAuthenticator;
 use Netfield\RagClient\Models\Request\{AskRequest, IndexDocumentRequest, BulkIndexRequest, DocumentInfo};
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
 
 class RagClientIntegrationTest extends TestCase
 {
-    private RagClient $client;
+    private NetfieldClient $client;
     private NullLogger $logger;
     private string $baseUrl;
 
     protected function setUp(): void
     {
-        $this->baseUrl = $_ENV['RAG_API_URL'] ?? 'http://rag-api:8080';
+        $this->baseUrl = $_ENV['NETFIELD_API_URL'] ?? 'http://rag-api:8080';
         $this->logger = new NullLogger();
 
         // Generate test JWT token
-        $tenantId = $_ENV['RAG_TENANT_ID'] ?? 'test-tenant';
-        $secretKey = $_ENV['RAG_JWT_SECRET'] ?? 'test-secret-jwt-key-for-docker-tests';
+        $tenantId = $_ENV['NETFIELD_TENANT_ID'] ?? 'test-tenant';
+        $secretKey = $_ENV['NETFIELD_JWT_SECRET'] ?? 'test-secret-jwt-key-for-docker-tests';
         $token = JwtAuthenticator::generateTestToken($tenantId, $secretKey);
 
         // Create client with custom HTTP client for testing
@@ -38,7 +38,7 @@ class RagClientIntegrationTest extends TestCase
             ],
         ]);
 
-        $this->client = new RagClient($this->baseUrl, $token, $httpClient, $this->logger);
+        $this->client = new NetfieldClient($this->baseUrl, $token, $httpClient, $this->logger);
     }
 
     public function testHealthCheck(): void
@@ -270,7 +270,7 @@ class RagClientIntegrationTest extends TestCase
     public function testErrorHandling(): void
     {
         // Test with invalid question (too short)
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
         $invalidRequest = new AskRequest("Hi"); // Too short
     }
 
@@ -279,9 +279,9 @@ class RagClientIntegrationTest extends TestCase
         // Create client with invalid JWT token (valid format but wrong signature)
         $httpClient = new Client(['timeout' => 30]);
         $invalidToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbnZhbGlkIiwidGVuYW50X2lkIjoiaW52YWxpZCIsImlhdCI6MTY5MzU5ODgwMCwiZXhwIjoxNjkzNjg1MjAwfQ.invalid_signature';
-        $invalidClient = new RagClient($this->baseUrl, $invalidToken, $httpClient);
+        $invalidClient = new NetfieldClient($this->baseUrl, $invalidToken, $httpClient);
 
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
         $this->expectExceptionMessage('Failed to execute RAG query');
 
         $request = new AskRequest("This should fail due to auth");

@@ -9,7 +9,7 @@ use Netfield\RagClient\Client\AdminClient;
 use Netfield\RagClient\Models\Request\CreateOrganizationRequest;
 use Netfield\RagClient\Models\Response\OrganizationTokenResponse;
 use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 
 class AdminClientIntegrationTest extends TestCase
 {
@@ -18,7 +18,7 @@ class AdminClientIntegrationTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->baseUrl = $_ENV['RAG_API_URL'] ?? 'http://localhost:8888';
+        $this->baseUrl = $_ENV['NETFIELD_API_URL'] ?? 'http://localhost:8888';
 
         // Generate admin token for testing
         $adminToken = JwtAuthenticator::generateAdminTestToken();
@@ -33,7 +33,7 @@ class AdminClientIntegrationTest extends TestCase
             $this->assertIsArray($status);
             $this->assertArrayHasKey('status', $status);
             $this->markTestIncomplete('Admin endpoints may require actual admin privileges');
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             // Expected if admin endpoints require real authentication
             // Check that error message mentions forbidden/403 or that exception code is 403
             $message = $e->getMessage();
@@ -72,7 +72,7 @@ class AdminClientIntegrationTest extends TestCase
             $this->assertNotEmpty($response->getOrganizationId());
             $this->assertNotEmpty($response->getToken());
             $this->assertGreaterThan(0, $response->getExpiresIn());
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             // Expected if admin endpoints require real authentication
             if (strpos($e->getMessage(), '403') !== false || strpos($e->getMessage(), '401') !== false) {
                 $this->markTestIncomplete('Admin creation requires proper authentication - request structure validated');
@@ -90,7 +90,7 @@ class AdminClientIntegrationTest extends TestCase
             $this->assertIsArray($organizations);
             $this->assertArrayHasKey('organizations', $organizations);
             $this->assertArrayHasKey('total', $organizations);
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (strpos($e->getMessage(), '403') !== false || strpos($e->getMessage(), '401') !== false) {
                 $this->markTestIncomplete('Admin listing requires proper authentication - request structure validated');
             } else {
@@ -105,7 +105,7 @@ class AdminClientIntegrationTest extends TestCase
             $organizations = $this->adminClient->listOrganizations('test', 'active');
 
             $this->assertIsArray($organizations);
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (strpos($e->getMessage(), '403') !== false || strpos($e->getMessage(), '401') !== false) {
                 $this->markTestIncomplete('Admin listing with filters requires proper authentication - request structure validated');
             } else {
@@ -126,7 +126,7 @@ class AdminClientIntegrationTest extends TestCase
             $result = $this->adminClient->updateOrganization('org_test_123', $updateData);
 
             $this->assertIsArray($result);
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (
                 strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
@@ -147,7 +147,7 @@ class AdminClientIntegrationTest extends TestCase
             // Test deactivation
             $deactivateResult = $this->adminClient->deactivateOrganization($testOrgId);
             $this->assertIsArray($deactivateResult);
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (
                 strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
@@ -163,7 +163,7 @@ class AdminClientIntegrationTest extends TestCase
             // Test reactivation
             $reactivateResult = $this->adminClient->reactivateOrganization($testOrgId);
             $this->assertIsArray($reactivateResult);
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (
                 strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
@@ -183,7 +183,7 @@ class AdminClientIntegrationTest extends TestCase
             // Test list organization clients
             $clients = $this->adminClient->listOrganizationClients($testOrgId);
             $this->assertIsArray($clients);
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (
                 strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||
@@ -197,7 +197,7 @@ class AdminClientIntegrationTest extends TestCase
             // Test deactivate client
             $result = $this->adminClient->deactivateClient($testOrgId, $testClientId);
             $this->assertIsArray($result);
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (
                 strpos($e->getMessage(), '403') !== false ||
                 strpos($e->getMessage(), '401') !== false ||

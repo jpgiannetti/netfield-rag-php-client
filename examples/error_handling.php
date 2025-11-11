@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Netfield\RagClient\RagClientFactory;
+use Netfield\RagClient\NetfieldClientFactory;
 use Netfield\RagClient\Client\OrganizationClient;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Exception\ErrorCode;
 use Netfield\RagClient\Models\Request\CreateClientTokenRequest;
 
@@ -18,7 +18,7 @@ use Netfield\RagClient\Models\Request\CreateClientTokenRequest;
  */
 
 // Configuration
-$apiUrl = getenv('RAG_API_URL') ?: 'http://localhost:8888/api/v1';
+$apiUrl = getenv('NETFIELD_API_URL') ?: 'http://localhost:8888/api/v1';
 $orgToken = getenv('ORG_JWT_TOKEN') ?: 'your-organization-token';
 
 // Créer le client organisation
@@ -36,7 +36,7 @@ try {
     $response = $orgClient->createClientToken($request);
     echo "✅ Token créé avec succès: {$response->clientName}\n";
     echo "   JWT: " . substr($response->jwtToken, 0, 50) . "...\n\n";
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     echo "❌ Erreur: {$e->getErrorCode()}\n";
     echo "   Message: {$e->getMessage()}\n\n";
 }
@@ -53,7 +53,7 @@ try {
 
     $response = $orgClient->createClientToken($request);
     echo "✅ Token créé\n\n";
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     switch ($e->getErrorCode()) {
         case ErrorCode::ORG_CLIENT_ALREADY_EXISTS:
             echo "⚠️  Le client existe déjà - on peut continuer\n";
@@ -77,7 +77,7 @@ try {
 
 echo "=== Exemple 3 : Helpers de classification ===\n\n";
 
-function handleApiError(RagApiException $e, callable $retryCallback): void
+function handleApiError(NetfieldApiException $e, callable $retryCallback): void
 {
     echo "Code d'erreur: {$e->getErrorCode()}\n";
 
@@ -100,7 +100,7 @@ function handleApiError(RagApiException $e, callable $retryCallback): void
 
 try {
     // Simuler une erreur
-    throw RagApiException::fromGuzzleException(
+    throw NetfieldApiException::fromGuzzleException(
         new \GuzzleHttp\Exception\ServerException(
             'Service Unavailable',
             new \GuzzleHttp\Psr7\Request('POST', '/test'),
@@ -112,7 +112,7 @@ try {
         ),
         'Test error'
     );
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     handleApiError($e, function () {
         echo "   → Retry effectué avec succès\n\n";
     });
@@ -128,7 +128,7 @@ function handleApiCallForFrontend(callable $apiCall): array
             'success' => true,
             'data' => $result,
         ];
-    } catch (RagApiException $e) {
+    } catch (NetfieldApiException $e) {
         // Convertir l'exception en format JSON standardisé
         return [
             'success' => false,
@@ -148,7 +148,7 @@ echo "=== Exemple 5 : Logging structuré avec contexte complet ===\n\n";
 
 try {
     // Simuler une erreur avec détails
-    throw RagApiException::fromGuzzleException(
+    throw NetfieldApiException::fromGuzzleException(
         new \GuzzleHttp\Exception\ClientException(
             'Client Already Exists',
             new \GuzzleHttp\Psr7\Request('POST', '/test'),
@@ -166,7 +166,7 @@ try {
         ),
         'Failed to create client'
     );
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     // Logging structuré avec toutes les informations
     $logData = [
         'level' => $e->isCritical() ? 'CRITICAL' : 'ERROR',
@@ -218,7 +218,7 @@ class MyAppApiClient
                 'client_name' => $response->clientName,
                 'jwt_token' => $response->jwtToken,
             ];
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             // Gestion intelligente selon le code
             return match ($e->getErrorCode()) {
                 ErrorCode::ORG_CLIENT_ALREADY_EXISTS => [

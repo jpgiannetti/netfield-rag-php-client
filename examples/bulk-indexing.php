@@ -5,16 +5,16 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Netfield\RagClient\RagClientFactory;
+use Netfield\RagClient\NetfieldClientFactory;
 use Netfield\RagClient\Models\Request\{IndexDocumentRequest, BulkIndexRequest, DocumentInfo};
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 
 try {
     // Configuration
     $baseUrl = $argv[1] ?? 'http://localhost:8888';
     $tenantId = $argv[2] ?? 'demo-tenant';
     
-    $client = RagClientFactory::createWithTestToken($baseUrl, $tenantId);
+    $client = NetfieldClientFactory::createWithTestToken($baseUrl, $tenantId);
     
     echo "📦 Préparation de l'indexation en lot\n";
     echo "Tenant: $tenantId\n";
@@ -158,7 +158,7 @@ try {
         echo "❌ L'indexation a échoué. Vérifiez la configuration et les erreurs.\n";
     }
     
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     echo "❌ Erreur API RAG: " . $e->getMessage() . "\n";
     if ($context = $e->getContext()) {
         echo "Contexte: " . json_encode($context, JSON_PRETTY_PRINT) . "\n";

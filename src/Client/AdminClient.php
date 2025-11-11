@@ -7,7 +7,7 @@ namespace Netfield\RagClient\Client;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Models\Request\CreateOrganizationRequest;
 use Netfield\RagClient\Models\Response\OrganizationTokenResponse;
 use Psr\Log\LoggerInterface;
@@ -60,12 +60,12 @@ class AdminClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return OrganizationTokenResponse::fromArray($data);
         } catch (GuzzleException $e) {
-            $exception = RagApiException::fromGuzzleException($e, 'Failed to create organization');
+            $exception = NetfieldApiException::fromGuzzleException($e, 'Failed to create organization');
             $this->logger->error('Failed to create organization', [
                 'error' => $exception->getMessage(),
                 'error_code' => $exception->getErrorCode()
@@ -100,12 +100,12 @@ class AdminClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
         } catch (GuzzleException $e) {
-            $exception = RagApiException::fromGuzzleException($e, 'Failed to list organizations');
+            $exception = NetfieldApiException::fromGuzzleException($e, 'Failed to list organizations');
             $this->logger->error('Failed to list organizations', [
                 'error' => $exception->getMessage(),
                 'error_code' => $exception->getErrorCode()
@@ -130,7 +130,7 @@ class AdminClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -139,7 +139,7 @@ class AdminClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Failed to update organization', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to update organization: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -170,7 +170,7 @@ class AdminClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -179,7 +179,7 @@ class AdminClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Failed to delete organization', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to delete organization: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -205,7 +205,7 @@ class AdminClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -214,7 +214,7 @@ class AdminClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Failed to deactivate organization', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to deactivate organization: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -240,7 +240,7 @@ class AdminClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -249,7 +249,7 @@ class AdminClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Failed to reactivate organization', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to reactivate organization: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -273,7 +273,7 @@ class AdminClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -282,7 +282,7 @@ class AdminClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Failed to list organization clients', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to list organization clients: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -308,7 +308,7 @@ class AdminClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -317,7 +317,7 @@ class AdminClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Failed to deactivate client', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to deactivate client: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -343,7 +343,7 @@ class AdminClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -352,7 +352,7 @@ class AdminClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Failed to reactivate client', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to reactivate client: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -378,7 +378,7 @@ class AdminClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -387,7 +387,7 @@ class AdminClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Failed to delete client', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to delete client: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -411,7 +411,7 @@ class AdminClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -420,7 +420,7 @@ class AdminClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Failed to get admin status', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get admin status: ' . $errorMessage,
                 $e->getCode(),
                 $e,

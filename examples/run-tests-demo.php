@@ -7,7 +7,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Netfield\RagClient\RagClientFactory;
+use Netfield\RagClient\NetfieldClientFactory;
 use Netfield\RagClient\Auth\JwtAuthenticator;
 
 echo "🧪 Démo des tests PHP RAG Client\n";
@@ -31,7 +31,7 @@ echo "\n";
 // 2. Test de création du client
 echo "2. Test création du client:\n";
 try {
-    $client = RagClientFactory::createWithTestToken(
+    $client = NetfieldClientFactory::createWithTestToken(
         'http://localhost:8888',
         'demo-tenant'
     );

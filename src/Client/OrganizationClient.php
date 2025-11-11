@@ -7,7 +7,7 @@ namespace Netfield\RagClient\Client;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Models\Request\CreateClientTokenRequest;
 use Netfield\RagClient\Models\Response\ClientTokenResponse;
 use Psr\Log\LoggerInterface;
@@ -58,12 +58,12 @@ class OrganizationClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return ClientTokenResponse::fromArray($data);
         } catch (GuzzleException $e) {
-            $exception = RagApiException::fromGuzzleException($e, 'Failed to create client token');
+            $exception = NetfieldApiException::fromGuzzleException($e, 'Failed to create client token');
             $this->logger->error('Failed to create client token', [
                 'error' => $exception->getMessage(),
                 'error_code' => $exception->getErrorCode()
@@ -85,12 +85,12 @@ class OrganizationClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
         } catch (GuzzleException $e) {
-            $exception = RagApiException::fromGuzzleException($e, 'Failed to list clients');
+            $exception = NetfieldApiException::fromGuzzleException($e, 'Failed to list clients');
             $this->logger->error('Failed to list clients', [
                 'error' => $exception->getMessage(),
                 'error_code' => $exception->getErrorCode()
@@ -114,12 +114,12 @@ class OrganizationClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
         } catch (GuzzleException $e) {
-            $exception = RagApiException::fromGuzzleException($e, 'Failed to deactivate client');
+            $exception = NetfieldApiException::fromGuzzleException($e, 'Failed to deactivate client');
             $this->logger->error('Failed to deactivate client', [
                 'error' => $exception->getMessage(),
                 'error_code' => $exception->getErrorCode()
@@ -141,12 +141,12 @@ class OrganizationClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
         } catch (GuzzleException $e) {
-            $exception = RagApiException::fromGuzzleException($e, 'Failed to get organization info');
+            $exception = NetfieldApiException::fromGuzzleException($e, 'Failed to get organization info');
             $this->logger->error('Failed to get organization info', [
                 'error' => $exception->getMessage(),
                 'error_code' => $exception->getErrorCode()
@@ -169,12 +169,12 @@ class OrganizationClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
         } catch (GuzzleException $e) {
-            $exception = RagApiException::fromGuzzleException($e, 'Failed to validate client token');
+            $exception = NetfieldApiException::fromGuzzleException($e, 'Failed to validate client token');
             $this->logger->error('Failed to validate client token', [
                 'error' => $exception->getMessage(),
                 'error_code' => $exception->getErrorCode()

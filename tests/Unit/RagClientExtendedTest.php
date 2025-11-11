@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Netfield\RagClient\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Netfield\RagClient\Client\RagClient;
+use Netfield\RagClient\Client\NetfieldClient;
 use Netfield\RagClient\Auth\JwtAuthenticator;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
@@ -14,7 +14,7 @@ use GuzzleHttp\HandlerStack;
 
 class RagClientExtendedTest extends TestCase
 {
-    private RagClient $ragClient;
+    private NetfieldClient $ragClient;
     private MockHandler $mockHandler;
 
     protected function setUp(): void
@@ -24,12 +24,12 @@ class RagClientExtendedTest extends TestCase
         $httpClient = new Client(['handler' => $handlerStack]);
 
         $token = JwtAuthenticator::generateTestToken('test_client');
-        $this->ragClient = new RagClient('http://localhost:8888', $token, $httpClient);
+        $this->ragClient = new NetfieldClient('http://localhost:8888', $token, $httpClient);
     }
 
     // TODO: Ces tests doivent être migrés vers DisClientTest
     // Les méthodes classifyDocument(), extractMetadata(), getTaxonomyInfo()
-    // sont maintenant dans DisClient (séparé de RagClient)
+    // sont maintenant dans DisClient (séparé de NetfieldClient)
 
     /*
     public function testClassifyDocument(): void

@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use Netfield\RagClient\RagClientFactory;
+use Netfield\RagClient\NetfieldClientFactory;
 use Netfield\RagClient\Models\Request\CreateOrganizationRequest;
 use Netfield\RagClient\Models\Request\CreateClientTokenRequest;
 use Netfield\RagClient\Models\Request\IndexDocumentRequest;
@@ -38,9 +38,9 @@ echo "🏭 2. Client Factory Demo\n";
 echo "-" . str_repeat("-", 30) . "\n";
 
 // Create different types of clients
-$ragClient = RagClientFactory::createWithTestToken($baseUrl, 'demo_tenant');
-$adminClient = RagClientFactory::createAdminWithTestToken($baseUrl);
-$orgClient = RagClientFactory::createOrganizationWithTestToken($baseUrl, 'demo_org');
+$ragClient = NetfieldClientFactory::createWithTestToken($baseUrl, 'demo_tenant');
+$adminClient = NetfieldClientFactory::createAdminWithTestToken($baseUrl);
+$orgClient = NetfieldClientFactory::createOrganizationWithTestToken($baseUrl, 'demo_org');
 
 echo "✅ RAG Client created\n";
 echo "✅ Admin Client created\n";

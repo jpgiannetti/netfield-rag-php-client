@@ -1,4 +1,4 @@
-# Guide de test pour le Client PHP RAG
+# Guide de test pour le Client PHP Netfield
 
 Ce document décrit comment exécuter et maintenir les tests pour le client PHP RAG dans un environnement Docker.
 
@@ -22,7 +22,7 @@ tests/
 ### Types de tests
 
 1. **Tests Unitaires** : Testent les classes individuellement sans dépendances externes
-2. **Tests d'Intégration** : Testent l'interaction avec l'API RAG réelle ou mockée
+2. **Tests d'Intégration** : Testent l'interaction avec l'API Netfield réelle ou mockée
 3. **Tests de Bout en Bout** : Workflows complets avec tous les services
 
 ## 🐳 Environnement Docker
@@ -32,7 +32,7 @@ tests/
 ```yaml
 services:
   php-test:           # Container PHP avec PHPUnit
-  rag-api:           # Mock de l'API RAG (WireMock)
+  rag-api:           # Mock de l'API Netfield (WireMock)
   wiremock:          # Server WireMock pour mocks personnalisés
   test-db:           # Base de données MySQL pour tests (optionnel)
 ```
@@ -41,7 +41,7 @@ services:
 
 - Réseau interne `test-network` pour communication entre services
 - Ports exposés :
-  - `8888`: API RAG mockée
+  - `8888`: API Netfield mockée
   - `9999`: WireMock standalone
   - `3307`: Base de données de test
 
@@ -171,10 +171,10 @@ make test-unit
 
 ### Tests d'intégration
 
-**Objectif** : Tester l'interaction avec l'API RAG réelle ou mockée.
+**Objectif** : Tester l'interaction avec l'API Netfield réelle ou mockée.
 
 **Prérequis** :
-- API RAG accessible ou mocks configurés
+- API Netfield accessible ou mocks configurés
 - Réseau Docker fonctionnel
 - Variables d'environnement correctes
 
@@ -211,13 +211,13 @@ Modifiez `.env.test` ou `phpunit.xml` :
 
 ```bash
 # API endpoints
-RAG_API_URL=http://rag-api:8080          # URL de l'API pour les tests
+NETFIELD_API_URL=http://rag-api:8080          # URL de l'API pour les tests
 RAG_API_URL_LOCAL=http://localhost:8888  # URL locale
 RAG_API_URL_MOCK=http://wiremock:8080    # URL des mocks
 
 # Authentication
-RAG_TENANT_ID=test-tenant                # Tenant de test
-RAG_JWT_SECRET=test-secret-key           # Clé JWT pour les tests
+NETFIELD_TENANT_ID=test-tenant                # Tenant de test
+NETFIELD_JWT_SECRET=test-secret-key           # Clé JWT pour les tests
 
 # Timeouts
 TEST_TIMEOUT=30                          # Timeout des tests
@@ -234,7 +234,7 @@ Modifiez `phpunit.xml` pour :
 
 ```xml
 <!-- Changer l'URL de l'API -->
-<env name="RAG_API_URL" value="http://localhost:8888"/>
+<env name="NETFIELD_API_URL" value="http://localhost:8888"/>
 
 <!-- Activer/désactiver des groupes de tests -->
 <groups>

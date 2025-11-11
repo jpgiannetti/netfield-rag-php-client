@@ -1,10 +1,10 @@
 {
-    "name": "jpgiannetti/rag-client",
-    "description": "PHP client library for Netfield RAG API - A production-ready RAG system for intelligent document Q&A",
+    "name": "jpgiannetti/netfield-client",
+    "description": "PHP client library for Netfield API - A production-ready multi-tenant document intelligence platform (RAG + DIS modules)",
     "type": "library",
     "license": "MIT",
-    "keywords": ["rag", "ai", "llm", "document", "search", "api", "client", "netfield"],
-    "homepage": "https://github.com/jpgiannetti/netfield-rag",
+    "keywords": ["netfield", "rag", "dis", "ai", "llm", "document", "search", "api", "client", "classification"],
+    "homepage": "https://github.com/jpgiannetti/netfield-platform",
     "authors": [
         {
             "name": "Jean-Philippe Giannetti",
@@ -12,8 +12,8 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/jpgiannetti/netfield-rag/issues",
-        "source": "https://github.com/jpgiannetti/netfield-rag"
+        "issues": "https://github.com/jpgiannetti/netfield-platform/issues",
+        "source": "https://github.com/jpgiannetti/netfield-platform"
     },
     "require": {
         "php": ">=8.0",

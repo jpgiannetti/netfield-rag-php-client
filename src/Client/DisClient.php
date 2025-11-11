@@ -7,7 +7,7 @@ namespace Netfield\RagClient\Client;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -62,7 +62,7 @@ class DisClient
      * @param string|null $title Titre du document (optionnel, améliore la classification)
      * @param array|null $metadata Métadonnées supplémentaires (optionnel)
      * @return array{doc_type: string, category: string, confidence: float, subtype?: string, enriched_metadata: array}
-     * @throws RagApiException Si la classification échoue
+     * @throws NetfieldApiException Si la classification échoue
      *
      * Codes d'erreur possibles:
      * - CLASSIFY_CONTENT_EMPTY : Contenu vide ou trop court
@@ -92,7 +92,7 @@ class DisClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -101,7 +101,7 @@ class DisClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Document classification failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to classify document: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -120,7 +120,7 @@ class DisClient
      * @param string $content Contenu du document
      * @param string $docType Type de document (ex: 'facture', 'contrat', etc.)
      * @return array Métadonnées extraites spécifiques au type de document
-     * @throws RagApiException Si l'extraction échoue
+     * @throws NetfieldApiException Si l'extraction échoue
      *
      * Codes d'erreur possibles:
      * - CLASSIFY_METADATA_EXTRACTION_FAILED : Échec de l'extraction
@@ -142,7 +142,7 @@ class DisClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -151,7 +151,7 @@ class DisClient
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
             $this->logger->error('Metadata extraction failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to extract metadata: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -171,7 +171,7 @@ class DisClient
      * catégories, sous-types, etc.).
      *
      * @return array Structure de la taxonomie
-     * @throws RagApiException Si la récupération échoue
+     * @throws NetfieldApiException Si la récupération échoue
      *
      * Codes d'erreur possibles:
      * - CLASSIFY_TAXONOMY_NOT_FOUND : Taxonomie non trouvée
@@ -187,7 +187,7 @@ class DisClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -195,7 +195,7 @@ class DisClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get taxonomy info: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -216,7 +216,7 @@ class DisClient
      *
      * @param string $docType Type de document
      * @return array Liste des champs filtrables avec leur configuration
-     * @throws RagApiException Si la récupération échoue
+     * @throws NetfieldApiException Si la récupération échoue
      */
     public function getFilterableFields(string $docType): array
     {
@@ -228,7 +228,7 @@ class DisClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -236,7 +236,7 @@ class DisClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get filterable fields: ' . $errorMessage,
                 $e->getCode(),
                 $e,
@@ -256,7 +256,7 @@ class DisClient
      * types de documents (ex: 'title', 'date', 'author', etc.).
      *
      * @return array Définition des champs communs
-     * @throws RagApiException Si la récupération échoue
+     * @throws NetfieldApiException Si la récupération échoue
      */
     public function getCommonMetadataFields(): array
     {
@@ -268,7 +268,7 @@ class DisClient
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new RagApiException('Invalid JSON response');
+                throw new NetfieldApiException('Invalid JSON response');
             }
 
             return $data;
@@ -276,7 +276,7 @@ class DisClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 'Failed to get common metadata fields: ' . $errorMessage,
                 $e->getCode(),
                 $e,

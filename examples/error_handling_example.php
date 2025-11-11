@@ -8,16 +8,16 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Netfield\RagClient\Client\RagClient;
+use Netfield\RagClient\Client\NetfieldClient;
 use Netfield\RagClient\DTO\AskRequest;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Exception\ErrorCode;
 use Psr\Log\LoggerInterface;
 
 /**
  * Exemple 1: Gestion basique des codes d'erreur
  */
-function basicErrorHandling(RagClient $client, LoggerInterface $logger): void
+function basicErrorHandling(NetfieldClient $client, LoggerInterface $logger): void
 {
     try {
         $request = new AskRequest('Quelle est la procédure de sécurité?');
@@ -26,7 +26,7 @@ function basicErrorHandling(RagClient $client, LoggerInterface $logger): void
         echo "Réponse: " . $response->getAnswer() . "\n";
         echo "Confiance: " . $response->getConfidenceScore() . "\n";
 
-    } catch (RagApiException $e) {
+    } catch (NetfieldApiException $e) {
         // Récupérer le code d'erreur standardisé
         $errorCode = $e->getErrorCode();
 
@@ -82,7 +82,7 @@ function basicErrorHandling(RagClient $client, LoggerInterface $logger): void
 /**
  * Exemple 2: Stratégie de retry intelligente basée sur les codes d'erreur
  */
-function smartRetryStrategy(RagClient $client, LoggerInterface $logger): void
+function smartRetryStrategy(NetfieldClient $client, LoggerInterface $logger): void
 {
     $maxRetries = 3;
     $retryDelay = 1000; // milliseconds
@@ -95,7 +95,7 @@ function smartRetryStrategy(RagClient $client, LoggerInterface $logger): void
             echo "✅ Succès après $attempt tentative(s)\n";
             return;
 
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             $errorCode = $e->getErrorCode();
 
             // Vérifier si l'erreur est retryable
@@ -137,7 +137,7 @@ function smartRetryStrategy(RagClient $client, LoggerInterface $logger): void
 /**
  * Exemple 3: Messages d'erreur personnalisés par locale
  */
-function customErrorMessages(RagClient $client): void
+function customErrorMessages(NetfieldClient $client): void
 {
     $errorMessages = [
         'fr' => [
@@ -166,7 +166,7 @@ function customErrorMessages(RagClient $client): void
         $request = new AskRequest('Test question');
         $response = $client->ask($request);
 
-    } catch (RagApiException $e) {
+    } catch (NetfieldApiException $e) {
         $errorCode = $e->getErrorCode();
 
         if ($errorCode && isset($errorMessages[$locale][$errorCode])) {
@@ -185,7 +185,7 @@ function customErrorMessages(RagClient $client): void
 /**
  * Exemple 4: Monitoring et alertes basés sur les codes d'erreur
  */
-function monitoringAndAlerts(RagClient $client, LoggerInterface $logger): void
+function monitoringAndAlerts(NetfieldClient $client, LoggerInterface $logger): void
 {
     $criticalErrors = [
         ErrorCode::SYSTEM_INTERNAL_ERROR,
@@ -209,7 +209,7 @@ function monitoringAndAlerts(RagClient $client, LoggerInterface $logger): void
             'sources_count' => count($response->getSources()),
         ]);
 
-    } catch (RagApiException $e) {
+    } catch (NetfieldApiException $e) {
         $errorCode = $e->getErrorCode();
         $errorData = $e->getErrorData();
 
@@ -245,7 +245,7 @@ function monitoringAndAlerts(RagClient $client, LoggerInterface $logger): void
 /**
  * Exemple 5: Vérification de la disponibilité avec gestion d'erreur
  */
-function healthCheckWithErrorHandling(RagClient $client): bool
+function healthCheckWithErrorHandling(NetfieldClient $client): bool
 {
     try {
         $health = $client->healthCheck();
@@ -258,7 +258,7 @@ function healthCheckWithErrorHandling(RagClient $client): bool
             return false;
         }
 
-    } catch (RagApiException $e) {
+    } catch (NetfieldApiException $e) {
         $errorCode = $e->getErrorCode();
 
         switch ($errorCode) {
@@ -282,12 +282,12 @@ function healthCheckWithErrorHandling(RagClient $client): bool
 if (php_sapi_name() === 'cli') {
     // Configuration
     $config = [
-        'base_url' => getenv('RAG_API_URL') ?: 'http://localhost:8888',
-        'jwt_token' => getenv('RAG_JWT_TOKEN') ?: 'your-jwt-token-here',
+        'base_url' => getenv('NETFIELD_API_URL') ?: 'http://localhost:8888',
+        'jwt_token' => getenv('NETFIELD_JWT_TOKEN') ?: 'your-jwt-token-here',
     ];
 
     // Créer le client (exemple simplifié)
-    // $client = new RagClient($config['base_url'], $config['jwt_token']);
+    // $client = new NetfieldClient($config['base_url'], $config['jwt_token']);
     // $logger = new YourLogger();
 
     echo "=== Exemples de gestion des codes d'erreur ===\n\n";

@@ -6,7 +6,7 @@ namespace Netfield\RagClient\Tests\Unit\Models\Request;
 
 use PHPUnit\Framework\TestCase;
 use Netfield\RagClient\Models\Request\AskRequest;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 
 class AskRequestTest extends TestCase
 {
@@ -45,7 +45,7 @@ class AskRequestTest extends TestCase
 
     public function testSetQuestionWithShortInput(): void
     {
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
         $this->expectExceptionMessage('Question must be at least 3 characters long');
 
         $request = new AskRequest("Initial question");
@@ -54,7 +54,7 @@ class AskRequestTest extends TestCase
 
     public function testSetQuestionWithEmptyInput(): void
     {
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
         $this->expectExceptionMessage('Question must be at least 3 characters long');
 
         $request = new AskRequest("Initial question");
@@ -63,7 +63,7 @@ class AskRequestTest extends TestCase
 
     public function testConstructorWithShortQuestion(): void
     {
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
         $this->expectExceptionMessage('Question must be at least 3 characters long');
 
         new AskRequest("No");
@@ -85,7 +85,7 @@ class AskRequestTest extends TestCase
 
     public function testSetLimitWithInvalidLowValue(): void
     {
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
         $this->expectExceptionMessage('Limit must be between 1 and 50');
 
         $request = new AskRequest("Test question");
@@ -94,7 +94,7 @@ class AskRequestTest extends TestCase
 
     public function testSetLimitWithInvalidHighValue(): void
     {
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
         $this->expectExceptionMessage('Limit must be between 1 and 50');
 
         $request = new AskRequest("Test question");
@@ -103,7 +103,7 @@ class AskRequestTest extends TestCase
 
     public function testConstructorWithInvalidLimit(): void
     {
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
         $this->expectExceptionMessage('Limit must be between 1 and 50');
 
         new AskRequest("Test question", 100);
@@ -197,7 +197,7 @@ class AskRequestTest extends TestCase
 
     public function testFromArrayWithInvalidData(): void
     {
-        $this->expectException(RagApiException::class);
+        $this->expectException(NetfieldApiException::class);
 
         $data = [
             'question' => 'OK',  // Too short
@@ -213,7 +213,7 @@ class AskRequestTest extends TestCase
     public function testQuestionValidation(string $question, bool $shouldPass): void
     {
         if (!$shouldPass) {
-            $this->expectException(RagApiException::class);
+            $this->expectException(NetfieldApiException::class);
         }
 
         $request = new AskRequest($question);
@@ -242,7 +242,7 @@ class AskRequestTest extends TestCase
     public function testLimitValidation(int $limit, bool $shouldPass): void
     {
         if (!$shouldPass) {
-            $this->expectException(RagApiException::class);
+            $this->expectException(NetfieldApiException::class);
         }
 
         $request = new AskRequest("Test question", $limit);

@@ -72,19 +72,19 @@ docker compose -f docker-compose.test.yml exec php-test bash -c "composer cs-fix
 ### Factory Pattern
 ```php
 // ✅ Bon : Factory pour création client
-use Netfield\RagClient\RagClientFactory;
+use Netfield\RagClient\NetfieldClientFactory;
 
-$client = RagClientFactory::create(
+$client = NetfieldClientFactory::create(
     baseUrl: 'http://localhost:8888/api/v1',
     jwtToken: $token
 );
 
 // OU avec configuration env
-$client = RagClientFactory::createFromEnv();
+$client = NetfieldClientFactory::createFromEnv();
 
 // ❌ Mauvais : Instanciation directe complexe
 $httpClient = new \GuzzleHttp\Client(['timeout' => 30]);
-$client = new RagClient($baseUrl, $token, $httpClient);
+$client = new NetfieldClient($baseUrl, $token, $httpClient);
 ```
 
 ### Typed Properties (PHP 8.0+)
@@ -113,7 +113,7 @@ class IndexDocumentRequest
 ### Exception Handling
 ```php
 // ✅ Bon : Exceptions spécifiques avec codes d'erreur
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Exception\AuthenticationException;
 
 try {
@@ -121,7 +121,7 @@ try {
 } catch (AuthenticationException $e) {
     // Token invalide ou expiré
     logger->error('Auth failed', ['error' => $e->getMessage()]);
-} catch (RagApiException $e) {
+} catch (NetfieldApiException $e) {
     // Erreur API avec code standardisé
     logger->error('API error', [
         'code' => $e->getCode(),
@@ -140,8 +140,8 @@ try {
 ## Key Files & Locations
 
 ### Core Client
-- `src/Client/RagClient.php` : Client principal avec méthodes API
-- `src/RagClientFactory.php` : Factory pour création client
+- `src/Client/NetfieldClient.php` : Client principal avec méthodes API
+- `src/NetfieldClientFactory.php` : Factory pour création client
 
 ### Authentication
 - `src/Auth/JwtAuthenticator.php` : Génération et validation JWT
@@ -151,7 +151,7 @@ try {
 - `src/Models/Response/` : Modèles de réponses (IndexResponse, AskResponse, etc.)
 
 ### Exceptions
-- `src/Exception/RagApiException.php` : Exception API générique
+- `src/Exception/NetfieldApiException.php` : Exception API générique
 - `src/Exception/AuthenticationException.php` : Erreurs d'authentification
 - `src/Exception/ErrorCode.php` : Enum codes d'erreur standardisés
 
@@ -184,14 +184,14 @@ class AskRequest
 ### ❌ Erreur 2 : Hard-coded configuration
 ```php
 // MAUVAIS
-$client = new RagClient('http://localhost:8888/api/v1', 'token123');
+$client = new NetfieldClient('http://localhost:8888/api/v1', 'token123');
 
 // BON
-$client = RagClientFactory::createFromEnv();
+$client = NetfieldClientFactory::createFromEnv();
 // OU
-$client = RagClientFactory::create(
-    baseUrl: getenv('RAG_API_URL'),
-    jwtToken: getenv('RAG_JWT_TOKEN')
+$client = NetfieldClientFactory::create(
+    baseUrl: getenv('NETFIELD_API_URL'),
+    jwtToken: getenv('NETFIELD_JWT_TOKEN')
 );
 ```
 
@@ -241,7 +241,7 @@ $token = JwtAuthenticator::generateTestToken(
 );
 
 // Utiliser dans le client
-$client = RagClientFactory::create(
+$client = NetfieldClientFactory::create(
     baseUrl: 'http://localhost:8888/api/v1',
     jwtToken: $token
 );
@@ -251,12 +251,12 @@ $client = RagClientFactory::create(
 
 ```bash
 # .env
-RAG_API_URL=http://localhost:8888/api/v1
-RAG_JWT_TOKEN=your-jwt-token
+NETFIELD_API_URL=http://localhost:8888/api/v1
+NETFIELD_JWT_TOKEN=your-jwt-token
 
 # OU pour génération automatique
-RAG_TENANT_ID=test_client
-RAG_JWT_SECRET=your-secret-key
+NETFIELD_TENANT_ID=test_client
+NETFIELD_JWT_SECRET=your-secret-key
 ```
 
 ## Commit Message Format

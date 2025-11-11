@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Netfield\RagClient\Tests\Unit;
 
 use Netfield\RagClient\Exception\ErrorCode;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -102,7 +102,7 @@ class DuplicateClientErrorTest extends TestCase
             'trace_id' => 'abc123xyz',
         ];
 
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             message: 'Un client avec ce nom existe déjà dans cette organisation',
             code: 409,
             errorCode: ErrorCode::ORG_CLIENT_ALREADY_EXISTS,
@@ -151,13 +151,13 @@ class DuplicateClientErrorTest extends TestCase
         ];
 
         try {
-            throw new RagApiException(
+            throw new NetfieldApiException(
                 message: 'Un client avec ce nom existe déjà dans cette organisation',
                 code: 409,
                 errorCode: ErrorCode::ORG_CLIENT_ALREADY_EXISTS,
                 errorData: $errorData
             );
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             // Vérifier qu'on peut identifier l'erreur par son code
             $this->assertEquals(ErrorCode::ORG_CLIENT_ALREADY_EXISTS, $e->getErrorCode());
 

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Netfield\RagClient\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Netfield\RagClient\RagClientFactory;
-use Netfield\RagClient\Client\RagClient;
+use Netfield\RagClient\NetfieldClientFactory;
+use Netfield\RagClient\Client\NetfieldClient;
 use Netfield\RagClient\Client\AdminClient;
 use Netfield\RagClient\Client\OrganizationClient;
 use Netfield\RagClient\Models\Request\CreateOrganizationRequest;
 use Netfield\RagClient\Models\Request\CreateClientTokenRequest;
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 
 /**
  * Live API tests against running localhost:8888
@@ -28,7 +28,7 @@ class LiveApiTest extends TestCase
 
     public function testBasicHealthCheck(): void
     {
-        $client = RagClientFactory::createWithTestToken($this->baseUrl, 'test_live_api');
+        $client = NetfieldClientFactory::createWithTestToken($this->baseUrl, 'test_live_api');
 
         try {
             $health = $client->health();
@@ -37,21 +37,21 @@ class LiveApiTest extends TestCase
             $this->assertEquals('healthy', $health->getStatus());
 
             echo "\n✅ Basic health check successful\n";
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             $this->markTestSkipped('API not available at ' . $this->baseUrl . ': ' . $e->getMessage());
         }
     }
 
     public function testNewEndpointsStructure(): void
     {
-        $client = RagClientFactory::createWithTestToken($this->baseUrl, 'test_live_endpoints');
+        $client = NetfieldClientFactory::createWithTestToken($this->baseUrl, 'test_live_endpoints');
 
         try {
             // Test confidence thresholds
             $thresholds = $client->getConfidenceThresholds();
             $this->assertIsArray($thresholds);
             echo "\n✅ Confidence thresholds endpoint accessible\n";
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (strpos($e->getMessage(), '404') !== false) {
                 $this->markTestSkipped('Confidence endpoints not available: ' . $e->getMessage());
             }
@@ -62,7 +62,7 @@ class LiveApiTest extends TestCase
             $models = $client->getAvailableModels();
             $this->assertIsArray($models);
             echo "\n✅ Available models endpoint accessible\n";
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (strpos($e->getMessage(), '404') !== false) {
                 $this->markTestSkipped('Models endpoint not available: ' . $e->getMessage());
             }
@@ -73,7 +73,7 @@ class LiveApiTest extends TestCase
             $taxonomy = $client->getTaxonomyInfo();
             $this->assertIsArray($taxonomy);
             echo "\n✅ Taxonomy info endpoint accessible\n";
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (strpos($e->getMessage(), '404') !== false) {
                 $this->markTestSkipped('Taxonomy endpoint not available: ' . $e->getMessage());
             }
@@ -83,7 +83,7 @@ class LiveApiTest extends TestCase
     public function testTokenGenerationAndStructure(): void
     {
         // Test admin token generation
-        $adminClient = RagClientFactory::createAdminWithTestToken($this->baseUrl);
+        $adminClient = NetfieldClientFactory::createAdminWithTestToken($this->baseUrl);
         $this->assertInstanceOf(AdminClient::class, $adminClient);
 
         $adminRequest = new CreateOrganizationRequest(
@@ -96,7 +96,7 @@ class LiveApiTest extends TestCase
         echo "\n✅ Admin client and request structures valid\n";
 
         // Test organization token generation
-        $orgClient = RagClientFactory::createOrganizationWithTestToken($this->baseUrl, 'org_live_test');
+        $orgClient = NetfieldClientFactory::createOrganizationWithTestToken($this->baseUrl, 'org_live_test');
         $this->assertInstanceOf(OrganizationClient::class, $orgClient);
 
         $clientRequest = new CreateClientTokenRequest(
@@ -129,7 +129,7 @@ class LiveApiTest extends TestCase
 
     public function testEndpointAvailability(): void
     {
-        $client = RagClientFactory::createWithTestToken($this->baseUrl, 'test_availability');
+        $client = NetfieldClientFactory::createWithTestToken($this->baseUrl, 'test_availability');
 
         $endpoints = [
             'health' => [$client, 'health'],
@@ -148,7 +148,7 @@ class LiveApiTest extends TestCase
             try {
                 call_user_func($callable);
                 $availableEndpoints[] = $name;
-            } catch (RagApiException $e) {
+            } catch (NetfieldApiException $e) {
                 $unavailableEndpoints[] = $name . ' (' . $e->getMessage() . ')';
             }
         }
@@ -163,7 +163,7 @@ class LiveApiTest extends TestCase
 
     public function testClassificationEndpoints(): void
     {
-        $client = RagClientFactory::createWithTestToken($this->baseUrl, 'test_classification');
+        $client = NetfieldClientFactory::createWithTestToken($this->baseUrl, 'test_classification');
 
         $testContent = "FACTURE N° 2023-001\nMontant: 150.00 EUR\nDate: 2023-12-01";
 
@@ -172,7 +172,7 @@ class LiveApiTest extends TestCase
             $classification = $client->classifyDocument($testContent, "Test Invoice");
             $this->assertIsArray($classification);
             echo "\n✅ Document classification endpoint working\n";
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (strpos($e->getMessage(), '404') === false && strpos($e->getMessage(), '503') === false) {
                 throw $e;
             }
@@ -184,7 +184,7 @@ class LiveApiTest extends TestCase
             $metadata = $client->extractMetadata($testContent, 'invoice');
             $this->assertIsArray($metadata);
             echo "\n✅ Metadata extraction endpoint working\n";
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (strpos($e->getMessage(), '404') === false && strpos($e->getMessage(), '503') === false) {
                 throw $e;
             }
@@ -194,14 +194,14 @@ class LiveApiTest extends TestCase
 
     public function testMonitoringEndpoints(): void
     {
-        $client = RagClientFactory::createWithTestToken($this->baseUrl, 'test_monitoring');
+        $client = NetfieldClientFactory::createWithTestToken($this->baseUrl, 'test_monitoring');
 
         try {
             // Test detailed health check
             $detailedHealth = $client->getDetailedHealthCheck();
             $this->assertIsArray($detailedHealth);
             echo "\n✅ Detailed health check endpoint working\n";
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (strpos($e->getMessage(), '404') === false && strpos($e->getMessage(), '503') === false) {
                 throw $e;
             }
@@ -213,7 +213,7 @@ class LiveApiTest extends TestCase
             $metrics = $client->getPrometheusMetrics();
             $this->assertIsString($metrics);
             echo "\n✅ Prometheus metrics endpoint working\n";
-        } catch (RagApiException $e) {
+        } catch (NetfieldApiException $e) {
             if (strpos($e->getMessage(), '404') === false && strpos($e->getMessage(), '503') === false) {
                 throw $e;
             }

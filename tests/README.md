@@ -1,4 +1,4 @@
-# Tests - Client PHP RAG
+# Tests - Client PHP Netfield
 
 ## 🚀 Démarrage rapide
 
@@ -50,9 +50,9 @@ tests/
 - **Couverture** : 100% visée
 
 ### Tests d'intégration
-- **Objectif** : Tester l'interaction avec l'API RAG
+- **Objectif** : Tester l'interaction avec l'API Netfield
 - **Durée** : 5-30 secondes par test
-- **Dépendances** : API RAG mockée ou réelle
+- **Dépendances** : API Netfield mockée ou réelle
 - **Couverture** : Workflows principaux
 
 ## 🧪 Scénarios testés
@@ -154,7 +154,7 @@ tests/reports/
 | Service | Port | Description |
 |---------|------|-------------|
 | `php-test` | - | Container PHP avec PHPUnit |
-| `rag-api` | 8888 | Mock API RAG (WireMock) |
+| `rag-api` | 8888 | Mock API Netfield (WireMock) |
 | `wiremock` | 9999 | Server WireMock standalone |
 | `test-db` | 3307 | MySQL pour tests (optionnel) |
 
@@ -170,9 +170,9 @@ tests/reports/
 
 ```bash
 # Dans .env.test ou phpunit.xml
-RAG_API_URL=http://rag-api:8080
-RAG_TENANT_ID=test-tenant
-RAG_JWT_SECRET=test-secret-key
+NETFIELD_API_URL=http://rag-api:8080
+NETFIELD_TENANT_ID=test-tenant
+NETFIELD_JWT_SECRET=test-secret-key
 TEST_TIMEOUT=30
 DEBUG_TESTS=false
 ```
@@ -182,7 +182,7 @@ DEBUG_TESTS=false
 ```xml
 <!-- phpunit.xml -->
 <php>
-    <env name="RAG_API_URL" value="http://localhost:8888"/>  <!-- API locale -->
+    <env name="NETFIELD_API_URL" value="http://localhost:8888"/>  <!-- API locale -->
     <env name="DEBUG_HTTP" value="true"/>                    <!-- Debug HTTP -->
 </php>
 

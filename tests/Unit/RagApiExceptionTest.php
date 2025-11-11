@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Netfield\RagClient\Tests\Unit;
 
-use Netfield\RagClient\Exception\RagApiException;
+use Netfield\RagClient\Exception\NetfieldApiException;
 use Netfield\RagClient\Exception\ErrorCode;
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +15,7 @@ class RagApiExceptionTest extends TestCase
      */
     public function exception_stores_error_code(): void
     {
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'Token expired',
             401,
             null,
@@ -40,7 +40,7 @@ class RagApiExceptionTest extends TestCase
             'trace_id' => 'abc123',
         ];
 
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'No relevant documents',
             404,
             null,
@@ -64,7 +64,7 @@ class RagApiExceptionTest extends TestCase
             'details' => $details,
         ];
 
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'No results',
             404,
             null,
@@ -87,7 +87,7 @@ class RagApiExceptionTest extends TestCase
             'field' => 'document_id',
         ];
 
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'Field required',
             422,
             null,
@@ -111,7 +111,7 @@ class RagApiExceptionTest extends TestCase
             'timestamp' => $timestamp,
         ];
 
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'Internal error',
             500,
             null,
@@ -135,7 +135,7 @@ class RagApiExceptionTest extends TestCase
             'trace_id' => $traceId,
         ];
 
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'Internal error',
             500,
             null,
@@ -152,7 +152,7 @@ class RagApiExceptionTest extends TestCase
      */
     public function is_retryable_returns_true_for_retryable_errors(): void
     {
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'Service unavailable',
             503,
             null,
@@ -168,7 +168,7 @@ class RagApiExceptionTest extends TestCase
      */
     public function is_retryable_returns_false_for_non_retryable_errors(): void
     {
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'Invalid token',
             401,
             null,
@@ -184,7 +184,7 @@ class RagApiExceptionTest extends TestCase
      */
     public function is_critical_returns_true_for_critical_errors(): void
     {
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'Internal error',
             500,
             null,
@@ -200,7 +200,7 @@ class RagApiExceptionTest extends TestCase
      */
     public function is_critical_returns_false_for_non_critical_errors(): void
     {
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'No documents',
             404,
             null,
@@ -216,7 +216,7 @@ class RagApiExceptionTest extends TestCase
      */
     public function needs_auth_refresh_returns_true_for_auth_errors(): void
     {
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'Token expired',
             401,
             null,
@@ -232,7 +232,7 @@ class RagApiExceptionTest extends TestCase
      */
     public function needs_auth_refresh_returns_false_for_non_auth_errors(): void
     {
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'LLM unavailable',
             503,
             null,
@@ -248,7 +248,7 @@ class RagApiExceptionTest extends TestCase
      */
     public function exception_without_error_code_returns_null(): void
     {
-        $exception = new RagApiException('Generic error', 500);
+        $exception = new NetfieldApiException('Generic error', 500);
 
         $this->assertNull($exception->getErrorCode());
         $this->assertNull($exception->getErrorData());
@@ -263,7 +263,7 @@ class RagApiExceptionTest extends TestCase
      */
     public function exception_without_error_code_returns_false_for_checks(): void
     {
-        $exception = new RagApiException('Generic error', 500);
+        $exception = new NetfieldApiException('Generic error', 500);
 
         $this->assertFalse($exception->isRetryable());
         $this->assertFalse($exception->isCritical());
@@ -277,7 +277,7 @@ class RagApiExceptionTest extends TestCase
     {
         $context = ['user_id' => 123, 'action' => 'query'];
 
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'Error occurred',
             500,
             null,
@@ -299,7 +299,7 @@ class RagApiExceptionTest extends TestCase
             // Missing: details, field, timestamp, trace_id
         ];
 
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'No documents',
             404,
             null,
@@ -321,7 +321,7 @@ class RagApiExceptionTest extends TestCase
     {
         $previous = new \RuntimeException('Previous error');
 
-        $exception = new RagApiException(
+        $exception = new NetfieldApiException(
             'RAG error',
             500,
             $previous,

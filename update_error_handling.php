@@ -12,7 +12,7 @@ function updateFileErrorHandling(string $filePath): void
     $oldPattern = '/(\s+)(}\s+catch\s+\(GuzzleException\s+\$e\)\s+\{\s*\n)' .
                   '(\s+\$errorMessage\s+=\s+\$this->extractErrorMessage\(\$e\);\s*\n)' .
                   '(\s+\$this->logger->error\([^;]+;\s*\n)' .
-                  '(\s+throw\s+new\s+RagApiException\([^,]+,\s+\$e->getCode\(\),\s+\$e\);\s*\n)/';
+                  '(\s+throw\s+new\s+NetfieldApiException\([^,]+,\s+\$e->getCode\(\),\s+\$e\);\s*\n)/';
 
     // New pattern with error_code and error_data
     $newReplacement = '$1$2' .
@@ -30,8 +30,8 @@ function updateFileErrorHandling(string $filePath): void
     }
 
     // Now update the throw statements to include error_code and error_data
-    $throwPattern = '/throw\s+new\s+RagApiException\(([^,]+),\s+\$e->getCode\(\),\s+\$e\);/';
-    $throwReplacement = 'throw new RagApiException($1, $e->getCode(), $e, null, $errorCode, $errorData);';
+    $throwPattern = '/throw\s+new\s+NetfieldApiException\(([^,]+),\s+\$e->getCode\(\),\s+\$e\);/';
+    $throwReplacement = 'throw new NetfieldApiException($1, $e->getCode(), $e, null, $errorCode, $errorData);';
 
     $updatedContent = preg_replace($throwPattern, $throwReplacement, $updatedContent);
 
@@ -56,7 +56,7 @@ function updateFileErrorHandling(string $filePath): void
 }
 
 $files = [
-    __DIR__ . '/src/Client/RagClient.php',
+    __DIR__ . '/src/Client/NetfieldClient.php',
     __DIR__ . '/src/Client/AdminClient.php',
     __DIR__ . '/src/Client/OrganizationClient.php',
 ];
