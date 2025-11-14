@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Tests\Integration;
+namespace Netfield\Client\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Netfield\RagClient\Client\NetfieldClient;
-use Netfield\RagClient\Models\Request\AskRequest;
-use Netfield\RagClient\Models\Request\BulkIndexRequest;
-use Netfield\RagClient\Models\Request\IndexDocumentRequest;
-use Netfield\RagClient\Models\Request\DocumentInfo;
-use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Exception\NetfieldApiException;
+use Netfield\Client\Client\NetfieldClient;
+use Netfield\Client\Models\Request\AskRequest;
+use Netfield\Client\Models\Request\BulkIndexRequest;
+use Netfield\Client\Models\Request\IndexDocumentRequest;
+use Netfield\Client\Models\Request\DocumentInfo;
+use Netfield\Client\Auth\JwtAuthenticator;
+use Netfield\Client\Exception\NetfieldApiException;
 
 class RagClientExtendedIntegrationTest extends TestCase
 {

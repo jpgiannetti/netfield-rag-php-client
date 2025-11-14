@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Tests\Unit;
+namespace Netfield\Client\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Netfield\RagClient\Auth\JwtAuthenticator;
+use Netfield\Client\Auth\JwtAuthenticator;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 

@@ -8,15 +8,10 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Netfield\Client\Auth\JwtAuthenticator;
 use Netfield\Client\Exception\NetfieldApiException;
-use Netfield\Client\Models\Request\CreateOrganizationRequest;
-use Netfield\Client\Models\Response\OrganizationTokenResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-/**
- * Admin client for managing organizations and system administration
- */
-class AdminClient
+class MonitoringClient
 {
     use ErrorMessageExtractorTrait;
 
@@ -27,7 +22,7 @@ class AdminClient
 
     public function __construct(
         string $baseUrl,
-        string $adminJwtToken,
+        string $jwtToken,
         ?Client $httpClient = null,
         ?LoggerInterface $logger = null
     ) {
@@ -40,93 +35,17 @@ class AdminClient
                 'Accept' => 'application/json',
             ],
         ]);
-        $this->authenticator = new JwtAuthenticator($adminJwtToken);
+        $this->authenticator = new JwtAuthenticator($jwtToken);
         $this->logger = $logger ?? new NullLogger();
     }
 
     /**
-     * Create a new organization
+     * Vérifie l'état de santé du service (health check global)
      */
-    public function createOrganization(CreateOrganizationRequest $request): OrganizationTokenResponse
+    public function health(): array
     {
         try {
-            $this->logger->info('Creating organization', ['name' => $request->getName()]);
-
-            $response = $this->httpClient->post($this->baseUrl . '/api/v1/admin/organizations', [
-                'headers' => $this->authenticator->getHeaders(),
-                'json' => $request->toArray(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return OrganizationTokenResponse::fromArray($data);
-        } catch (GuzzleException $e) {
-            $exception = NetfieldApiException::fromGuzzleException($e, 'Failed to create organization');
-            $this->logger->error('Failed to create organization', [
-                'error' => $exception->getMessage(),
-                'error_code' => $exception->getErrorCode()
-            ]);
-            throw $exception;
-        }
-    }
-
-    /**
-     * List all organizations
-     */
-    public function listOrganizations(?string $search = null, ?string $orgStatus = null): array
-    {
-        try {
-            $queryParams = [];
-            if ($search !== null) {
-                $queryParams['search'] = $search;
-            }
-            if ($orgStatus !== null) {
-                $queryParams['org_status'] = $orgStatus;
-            }
-
-            $url = $this->baseUrl . '/api/v1/admin/organizations';
-            if (!empty($queryParams)) {
-                $url .= '?' . http_build_query($queryParams);
-            }
-
-            $response = $this->httpClient->get($url, [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $exception = NetfieldApiException::fromGuzzleException($e, 'Failed to list organizations');
-            $this->logger->error('Failed to list organizations', [
-                'error' => $exception->getMessage(),
-                'error_code' => $exception->getErrorCode()
-            ]);
-            throw $exception;
-        }
-    }
-
-    /**
-     * Update an organization
-     */
-    public function updateOrganization(string $organizationId, array $updateData): array
-    {
-        try {
-            $this->logger->info('Updating organization', ['organization_id' => $organizationId]);
-
-            $response = $this->httpClient->put($this->baseUrl . '/api/v1/admin/organizations/' . urlencode($organizationId), [
-                'headers' => $this->authenticator->getHeaders(),
-                'json' => $updateData,
-            ]);
-
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/health');
             $data = json_decode($response->getBody()->getContents(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
@@ -138,9 +57,8 @@ class AdminClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Failed to update organization', ['error' => $errorMessage, 'error_code' => $errorCode]);
             throw new NetfieldApiException(
-                'Failed to update organization: ' . $errorMessage,
+                'Health check failed: ' . $errorMessage,
                 $e->getCode(),
                 $e,
                 null,
@@ -151,19 +69,12 @@ class AdminClient
     }
 
     /**
-     * Delete an organization
+     * Health check détaillé avec métriques système
      */
-    public function deleteOrganization(string $organizationId, bool $force = false): array
+    public function getDetailedHealthCheck(): array
     {
         try {
-            $this->logger->info('Deleting organization', ['organization_id' => $organizationId, 'force' => $force]);
-
-            $url = $this->baseUrl . '/api/v1/admin/organizations/' . urlencode($organizationId);
-            if ($force) {
-                $url .= '?force=true';
-            }
-
-            $response = $this->httpClient->delete($url, [
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/health/detailed', [
                 'headers' => $this->authenticator->getHeaders(),
             ]);
 
@@ -178,9 +89,8 @@ class AdminClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Failed to delete organization', ['error' => $errorMessage, 'error_code' => $errorCode]);
             throw new NetfieldApiException(
-                'Failed to delete organization: ' . $errorMessage,
+                'Failed to get detailed health check: ' . $errorMessage,
                 $e->getCode(),
                 $e,
                 null,
@@ -191,31 +101,22 @@ class AdminClient
     }
 
     /**
-     * Deactivate an organization
+     * Récupère les métriques Prometheus
      */
-    public function deactivateOrganization(string $organizationId): array
+    public function getPrometheusMetrics(): string
     {
         try {
-            $this->logger->info('Deactivating organization', ['organization_id' => $organizationId]);
-
-            $response = $this->httpClient->post($this->baseUrl . '/api/v1/admin/organizations/' . urlencode($organizationId) . '/deactivate', [
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/metrics', [
                 'headers' => $this->authenticator->getHeaders(),
             ]);
 
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
+            return $response->getBody()->getContents();
         } catch (GuzzleException $e) {
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Failed to deactivate organization', ['error' => $errorMessage, 'error_code' => $errorCode]);
             throw new NetfieldApiException(
-                'Failed to deactivate organization: ' . $errorMessage,
+                'Failed to get Prometheus metrics: ' . $errorMessage,
                 $e->getCode(),
                 $e,
                 null,
@@ -226,14 +127,12 @@ class AdminClient
     }
 
     /**
-     * Reactivate an organization
+     * Récupère les informations d'une trace spécifique
      */
-    public function reactivateOrganization(string $organizationId): array
+    public function getTraceInfo(string $traceId): array
     {
         try {
-            $this->logger->info('Reactivating organization', ['organization_id' => $organizationId]);
-
-            $response = $this->httpClient->post($this->baseUrl . '/api/v1/admin/organizations/' . urlencode($organizationId) . '/reactivate', [
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/traces/' . urlencode($traceId), [
                 'headers' => $this->authenticator->getHeaders(),
             ]);
 
@@ -248,9 +147,8 @@ class AdminClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Failed to reactivate organization', ['error' => $errorMessage, 'error_code' => $errorCode]);
             throw new NetfieldApiException(
-                'Failed to reactivate organization: ' . $errorMessage,
+                'Failed to get trace info: ' . $errorMessage,
                 $e->getCode(),
                 $e,
                 null,
@@ -261,12 +159,12 @@ class AdminClient
     }
 
     /**
-     * List clients of an organization
+     * Résumé des performances du système RAG
      */
-    public function listOrganizationClients(string $organizationId): array
+    public function getPerformanceSummary(): array
     {
         try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/admin/organizations/' . urlencode($organizationId) . '/clients', [
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/performance/summary', [
                 'headers' => $this->authenticator->getHeaders(),
             ]);
 
@@ -281,9 +179,8 @@ class AdminClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Failed to list organization clients', ['error' => $errorMessage, 'error_code' => $errorCode]);
             throw new NetfieldApiException(
-                'Failed to list organization clients: ' . $errorMessage,
+                'Failed to get performance summary: ' . $errorMessage,
                 $e->getCode(),
                 $e,
                 null,
@@ -294,14 +191,14 @@ class AdminClient
     }
 
     /**
-     * Deactivate a client
+     * Test des alertes de monitoring
      */
-    public function deactivateClient(string $organizationId, string $clientId): array
+    public function testMonitoringAlert(string $alertType): array
     {
         try {
-            $this->logger->info('Deactivating client', ['organization_id' => $organizationId, 'client_id' => $clientId]);
+            $this->logger->info('Testing monitoring alert', ['alert_type' => $alertType]);
 
-            $response = $this->httpClient->post($this->baseUrl . '/api/v1/admin/organizations/' . urlencode($organizationId) . '/clients/' . urlencode($clientId) . '/deactivate', [
+            $response = $this->httpClient->post($this->baseUrl . '/api/v1/monitoring/alerts/test?alert_type=' . urlencode($alertType), [
                 'headers' => $this->authenticator->getHeaders(),
             ]);
 
@@ -316,9 +213,9 @@ class AdminClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Failed to deactivate client', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            $this->logger->error('Alert test failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
             throw new NetfieldApiException(
-                'Failed to deactivate client: ' . $errorMessage,
+                'Failed to test monitoring alert: ' . $errorMessage,
                 $e->getCode(),
                 $e,
                 null,
@@ -329,14 +226,12 @@ class AdminClient
     }
 
     /**
-     * Reactivate a client
+     * Statut système global
      */
-    public function reactivateClient(string $organizationId, string $clientId): array
+    public function getSystemStatus(): array
     {
         try {
-            $this->logger->info('Reactivating client', ['organization_id' => $organizationId, 'client_id' => $clientId]);
-
-            $response = $this->httpClient->post($this->baseUrl . '/api/v1/admin/organizations/' . urlencode($organizationId) . '/clients/' . urlencode($clientId) . '/reactivate', [
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/system/status', [
                 'headers' => $this->authenticator->getHeaders(),
             ]);
 
@@ -351,9 +246,8 @@ class AdminClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Failed to reactivate client', ['error' => $errorMessage, 'error_code' => $errorCode]);
             throw new NetfieldApiException(
-                'Failed to reactivate client: ' . $errorMessage,
+                'Failed to get system status: ' . $errorMessage,
                 $e->getCode(),
                 $e,
                 null,
@@ -364,14 +258,12 @@ class AdminClient
     }
 
     /**
-     * Delete a client
+     * Récupère les paramètres UI pour la gestion de confiance
      */
-    public function deleteClient(string $organizationId, string $clientId): array
+    public function getUISettings(): array
     {
         try {
-            $this->logger->info('Deleting client', ['organization_id' => $organizationId, 'client_id' => $clientId]);
-
-            $response = $this->httpClient->delete($this->baseUrl . '/api/v1/admin/organizations/' . urlencode($organizationId) . '/clients/' . urlencode($clientId), [
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/confidence/ui-settings', [
                 'headers' => $this->authenticator->getHeaders(),
             ]);
 
@@ -386,9 +278,8 @@ class AdminClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Failed to delete client', ['error' => $errorMessage, 'error_code' => $errorCode]);
             throw new NetfieldApiException(
-                'Failed to delete client: ' . $errorMessage,
+                'Failed to get UI settings: ' . $errorMessage,
                 $e->getCode(),
                 $e,
                 null,
@@ -399,12 +290,12 @@ class AdminClient
     }
 
     /**
-     * Get admin system status
+     * Récupère les informations sur le modèle de calibration de confiance
      */
-    public function getAdminStatus(): array
+    public function getCalibrationInfo(): array
     {
         try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/admin/status', [
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/confidence/calibration-info', [
                 'headers' => $this->authenticator->getHeaders(),
             ]);
 
@@ -419,9 +310,76 @@ class AdminClient
             $errorMessage = $this->extractErrorMessage($e);
             $errorData = $this->extractErrorData($e);
             $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Failed to get admin status', ['error' => $errorMessage, 'error_code' => $errorCode]);
             throw new NetfieldApiException(
-                'Failed to get admin status: ' . $errorMessage,
+                'Failed to get calibration info: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
+        }
+    }
+
+    /**
+     * Valide la confiance d'une réponse donnée
+     */
+    public function validateResponseConfidence(array $responseData): array
+    {
+        try {
+            $this->logger->info('Validating response confidence');
+
+            $response = $this->httpClient->post($this->baseUrl . '/api/v1/confidence/validate-response', [
+                'headers' => $this->authenticator->getHeaders(),
+                'json' => $responseData,
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new NetfieldApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            $errorMessage = $this->extractErrorMessage($e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            $this->logger->error('Confidence validation failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
+            throw new NetfieldApiException(
+                'Failed to validate response confidence: ' . $errorMessage,
+                $e->getCode(),
+                $e,
+                null,
+                $errorCode,
+                $errorData
+            );
+        }
+    }
+
+    /**
+     * Récupère les métriques de confiance
+     */
+    public function getConfidenceMetrics(): array
+    {
+        try {
+            $response = $this->httpClient->get($this->baseUrl . '/api/v1/confidence/metrics', [
+                'headers' => $this->authenticator->getHeaders(),
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new NetfieldApiException('Invalid JSON response');
+            }
+
+            return $data;
+        } catch (GuzzleException $e) {
+            $errorMessage = $this->extractErrorMessage($e);
+            $errorData = $this->extractErrorData($e);
+            $errorCode = $this->extractErrorCode($e);
+            throw new NetfieldApiException(
+                'Failed to get confidence metrics: ' . $errorMessage,
                 $e->getCode(),
                 $e,
                 null,

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Models\Response;
+namespace Netfield\Client\Models\Response;
 
 class HealthResponse
 {

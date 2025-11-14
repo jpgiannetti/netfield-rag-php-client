@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Tests\Integration;
+namespace Netfield\Client\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Netfield\RagClient\Client\NetfieldClient;
-use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Models\Request\{AskRequest, IndexDocumentRequest, BulkIndexRequest, DocumentInfo};
-use Netfield\RagClient\Exception\NetfieldApiException;
+use Netfield\Client\Client\NetfieldClient;
+use Netfield\Client\Auth\JwtAuthenticator;
+use Netfield\Client\Models\Request\{AskRequest, IndexDocumentRequest, BulkIndexRequest, DocumentInfo};
+use Netfield\Client\Exception\NetfieldApiException;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
 

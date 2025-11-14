@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Tests\Unit;
+namespace Netfield\Client\Tests\Unit;
 
-use Netfield\RagClient\Exception\ErrorCode;
-use Netfield\RagClient\Exception\NetfieldApiException;
+use Netfield\Client\Exception\ErrorCode;
+use Netfield\Client\Exception\NetfieldApiException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -19,7 +19,7 @@ class DuplicateClientErrorTest extends TestCase
     public function org_client_already_exists_error_code_exists(): void
     {
         $this->assertTrue(
-            defined('Netfield\RagClient\Exception\ErrorCode::ORG_CLIENT_ALREADY_EXISTS'),
+            defined('Netfield\Client\Exception\ErrorCode::ORG_CLIENT_ALREADY_EXISTS'),
             'ORG_CLIENT_ALREADY_EXISTS error code should be defined'
         );
     }

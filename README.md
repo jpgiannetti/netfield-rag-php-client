@@ -30,7 +30,7 @@ composer install
 <?php
 require 'vendor/autoload.php';
 
-use Netfield\RagClient\NetfieldClientFactory;
+use Netfield\Client\NetfieldClientFactory;
 
 // Créer le client avec un token JWT
 $client = NetfieldClientFactory::create(
@@ -48,7 +48,7 @@ $client = NetfieldClientFactory::createWithTestToken(
 ### 2. Classifier un Document (DIS - Document Intelligence Service)
 
 ```php
-use Netfield\RagClient\NetfieldClientFactory;
+use Netfield\Client\NetfieldClientFactory;
 
 // Créer le client DIS pour la classification
 $disClient = NetfieldClientFactory::createDisClient(
@@ -71,8 +71,8 @@ echo "Confiance: {$classification['confidence']}\n"; // Ex: 0.95
 ### 3. Indexer un Document
 
 ```php
-use Netfield\RagClient\Models\Request\IndexDocumentRequest;
-use Netfield\RagClient\Models\Request\DocumentInfo;
+use Netfield\Client\Models\Request\IndexDocumentRequest;
+use Netfield\Client\Models\Request\DocumentInfo;
 
 // Étape 1: Classifier le document via DIS
 $disClient = NetfieldClientFactory::createDisClient(
@@ -119,7 +119,7 @@ try {
 ### 4. Effectuer une Recherche
 
 ```php
-use Netfield\RagClient\Models\Request\AskRequest;
+use Netfield\Client\Models\Request\AskRequest;
 
 $question = new AskRequest(
     question: 'Comment configurer le système ?',
@@ -154,6 +154,80 @@ $client = NetfieldClientFactory::createFromEnv();
 
 ## 🔧 Fonctionnalités Avancées
 
+### Client Monitoring - Métriques et Monitoring
+
+Le `MonitoringClient` permet de surveiller l'état de santé du système et d'accéder aux métriques.
+
+```php
+use Netfield\Client\NetfieldClientFactory;
+
+// Créer le client Monitoring
+$monitoringClient = NetfieldClientFactory::createMonitoringClient(
+    'http://localhost:8888',
+    'your-jwt-token'
+);
+
+// Health check détaillé
+$healthData = $monitoringClient->getDetailedHealthCheck();
+echo "Status: {$healthData['status']}\n";
+echo "Services: " . json_encode($healthData['services']) . "\n";
+
+// Métriques Prometheus
+$prometheusMetrics = $monitoringClient->getPrometheusMetrics();
+echo $prometheusMetrics; // Format texte Prometheus
+
+// Métriques de confiance
+$confidenceMetrics = $monitoringClient->getConfidenceMetrics();
+echo "Average confidence: {$confidenceMetrics['average_confidence']}\n";
+
+// Informations de trace
+$traceInfo = $monitoringClient->getTraceInfo('trace-id-123');
+echo "Trace duration: {$traceInfo['duration_ms']}ms\n";
+```
+
+### Client Validation - Validation de Documents
+
+Le `ValidationClient` permet de valider des documents avant indexation et d'analyser les erreurs.
+
+```php
+use Netfield\Client\NetfieldClientFactory;
+use Netfield\Client\Models\Request\BulkIndexRequest;
+use Netfield\Client\Models\Request\IndexDocumentRequest;
+
+// Créer le client Validation
+$validationClient = NetfieldClientFactory::createValidationClient(
+    'http://localhost:8888',
+    'your-jwt-token'
+);
+
+// Valider des documents (dry-run)
+$documents = [
+    new IndexDocumentRequest(/* ... */),
+    new IndexDocumentRequest(/* ... */)
+];
+$bulkRequest = new BulkIndexRequest($documents);
+$validationResult = $validationClient->validateDocuments($bulkRequest);
+
+echo "Valid documents: {$validationResult['valid_count']}\n";
+echo "Invalid documents: {$validationResult['invalid_count']}\n";
+
+// Récupérer le rapport de validation d'un document
+$report = $validationClient->getDocumentValidationReport('doc_123');
+foreach ($report['errors'] as $error) {
+    echo "Error: {$error['message']} (field: {$error['field']})\n";
+}
+
+// Résumé des validations sur 30 jours
+$summary = $validationClient->getValidationSummary(30);
+echo "Error rate: {$summary['error_rate']}%\n";
+
+// Statistiques d'erreurs par champ
+$errorsByField = $validationClient->getErrorsByField('invoice', 10);
+foreach ($errorsByField as $fieldError) {
+    echo "{$fieldError['field']}: {$fieldError['count']} errors\n";
+}
+```
+
 ### Client DIS - Classification de Documents
 
 Le `DisClient` expose les fonctionnalités du Document Intelligence Service (DIS), un module séparé dédié à la classification et l'extraction de métadonnées.
@@ -161,7 +235,7 @@ Le `DisClient` expose les fonctionnalités du Document Intelligence Service (DIS
 #### Classification Simple
 
 ```php
-use Netfield\RagClient\NetfieldClientFactory;
+use Netfield\Client\NetfieldClientFactory;
 
 $disClient = NetfieldClientFactory::createDisClient(
     'http://localhost:8888',
@@ -204,8 +278,8 @@ $commonFields = $disClient->getCommonMetadataFields();
 #### Gestion des Erreurs DIS
 
 ```php
-use Netfield\RagClient\Exception\NetfieldApiException;
-use Netfield\RagClient\Exception\ErrorCode;
+use Netfield\Client\Exception\NetfieldApiException;
+use Netfield\Client\Exception\ErrorCode;
 
 try {
     $classification = $disClient->classifyDocument($content);
@@ -249,7 +323,7 @@ $client = NetfieldClientFactory::createCustom(
 ### Indexation en Lot
 
 ```php
-use Netfield\RagClient\Models\Request\BulkIndexRequest;
+use Netfield\Client\Models\Request\BulkIndexRequest;
 
 $documents = [
     new IndexDocumentRequest('doc1', 'client1', 'Contenu 1...', /* ... */),
@@ -312,7 +386,7 @@ docker compose -f docker-compose.test.yml exec php-test ./vendor/bin/phpunit --t
 ### Générer un Token JWT
 
 ```php
-use Netfield\RagClient\Auth\JwtAuthenticator;
+use Netfield\Client\Auth\JwtAuthenticator;
 
 $token = JwtAuthenticator::generateTestToken(
     tenantId: 'my_client',
@@ -346,19 +420,71 @@ $client = new NetfieldClient(
 ```
 src/
 ├── Auth/              # Authentification JWT
-├── Client/            # Clients API
-│   ├── NetfieldClient.php          # Client RAG (Q&A et indexation)
-│   ├── DisClient.php          # Client DIS (classification)
-│   ├── AdminClient.php        # Client Admin (gestion organisations)
-│   └── OrganizationClient.php # Client Organisation (gestion clients)
+├── Client/            # Clients API spécialisés
+│   ├── NetfieldClient.php        # Client RAG (Q&A et indexation)
+│   ├── DisClient.php             # Client DIS (classification documents)
+│   ├── MonitoringClient.php      # Client Monitoring (métriques, health, traces)
+│   ├── ValidationClient.php      # Client Validation (validation documents)
+│   ├── AdminClient.php           # Client Admin (gestion organisations)
+│   └── OrganizationClient.php    # Client Organisation (gestion clients)
 ├── Exception/         # Exceptions personnalisées
-│   ├── NetfieldApiException.php    # Exception base avec erreur standardisée
-│   └── ErrorCode.php          # Codes d'erreur (CLASSIFY_*, INDEX_*, etc.)
+│   ├── NetfieldApiException.php  # Exception base avec erreur standardisée
+│   └── ErrorCode.php             # Codes d'erreur (CLASSIFY_*, INDEX_*, etc.)
 ├── Models/            # Modèles de données
 │   ├── Request/       # Requêtes API
 │   └── Response/      # Réponses API
-└── NetfieldClientFactory.php  # Factory principal
+└── NetfieldClientFactory.php     # Factory principal
 ```
+
+## 📦 Clients Disponibles
+
+Le SDK PHP offre plusieurs clients spécialisés pour différentes fonctionnalités :
+
+### NetfieldClient - RAG Q&A et Indexation
+Client principal pour les fonctionnalités RAG (Retrieval-Augmented Generation) :
+- Questions/Réponses avec scoring de confiance
+- Streaming Server-Sent Events (SSE)
+- Indexation de documents (simple et batch)
+- Mise à jour et suppression de documents
+- Configuration et statistiques RAG
+
+### DisClient - Classification de Documents
+Client pour le module DIS (Document Intelligence Service) :
+- Classification automatique de documents
+- Extraction de métadonnées
+- Gestion de la taxonomie
+- Récupération des champs filtrables
+
+### MonitoringClient - Métriques et Monitoring
+Client pour le monitoring du système :
+- Health checks (global et détaillé)
+- Métriques Prometheus
+- Traces distribuées
+- Résumés de performance
+- Tests d'alertes
+- Métriques de confiance
+- Informations de calibration
+
+### ValidationClient - Validation de Documents
+Client pour la validation de documents :
+- Validation dry-run (sans indexation)
+- Rapports de validation par document
+- Résumés de validation
+- Recherche d'erreurs de validation
+- Statistiques d'erreurs par champ
+- Nettoyage des anciens rapports
+
+### AdminClient - Gestion Organisations
+Client administrateur pour gérer les organisations :
+- CRUD organisations
+- Activation/Désactivation
+- Statistiques d'utilisation
+
+### OrganizationClient - Gestion Clients
+Client pour gérer les clients d'une organisation :
+- CRUD clients
+- Génération de tokens JWT
+- Gestion des permissions
 
 ### Contribuer
 
@@ -402,8 +528,8 @@ Le client gère automatiquement les codes d'erreur standardisés de l'API Netfie
 #### Gestion Simple
 
 ```php
-use Netfield\RagClient\Exception\NetfieldApiException;
-use Netfield\RagClient\Exception\ErrorCode;
+use Netfield\Client\Exception\NetfieldApiException;
+use Netfield\Client\Exception\ErrorCode;
 
 try {
     $response = $orgClient->createClientToken($request);

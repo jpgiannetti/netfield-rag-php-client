@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient;
+namespace Netfield\Client;
 
 use GuzzleHttp\Client;
-use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Client\NetfieldClient;
-use Netfield\RagClient\Client\DisClient;
-use Netfield\RagClient\Client\AdminClient;
-use Netfield\RagClient\Client\OrganizationClient;
+use Netfield\Client\Auth\JwtAuthenticator;
+use Netfield\Client\Client\NetfieldClient;
+use Netfield\Client\Client\DisClient;
+use Netfield\Client\Client\AdminClient;
+use Netfield\Client\Client\OrganizationClient;
+use Netfield\Client\Client\MonitoringClient;
+use Netfield\Client\Client\ValidationClient;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -144,5 +146,71 @@ class NetfieldClientFactory
         $httpClient = new Client($httpOptions);
         $authenticator = new JwtAuthenticator($jwtToken);
         return new DisClient($baseUrl, $authenticator, $httpClient, $logger);
+    }
+
+    /**
+     * Crée un client Monitoring pour les métriques, health checks et traces
+     */
+    public static function createMonitoringClient(string $baseUrl, string $jwtToken): MonitoringClient
+    {
+        return new MonitoringClient($baseUrl, $jwtToken);
+    }
+
+    /**
+     * Crée un client Monitoring avec token de test
+     */
+    public static function createMonitoringWithTestToken(
+        string $baseUrl,
+        string $tenantId,
+        string $secretKey = 'super-secret-jwt-key-change-in-production-2024'
+    ): MonitoringClient {
+        $token = JwtAuthenticator::generateTestToken($tenantId, $secretKey);
+        return new MonitoringClient($baseUrl, $token);
+    }
+
+    /**
+     * Crée un client Monitoring avec configuration personnalisée
+     */
+    public static function createMonitoringCustom(
+        string $baseUrl,
+        string $jwtToken,
+        array $httpOptions = [],
+        ?LoggerInterface $logger = null
+    ): MonitoringClient {
+        $httpClient = new Client($httpOptions);
+        return new MonitoringClient($baseUrl, $jwtToken, $httpClient, $logger);
+    }
+
+    /**
+     * Crée un client Validation pour la validation de documents
+     */
+    public static function createValidationClient(string $baseUrl, string $jwtToken): ValidationClient
+    {
+        return new ValidationClient($baseUrl, $jwtToken);
+    }
+
+    /**
+     * Crée un client Validation avec token de test
+     */
+    public static function createValidationWithTestToken(
+        string $baseUrl,
+        string $tenantId,
+        string $secretKey = 'super-secret-jwt-key-change-in-production-2024'
+    ): ValidationClient {
+        $token = JwtAuthenticator::generateTestToken($tenantId, $secretKey);
+        return new ValidationClient($baseUrl, $token);
+    }
+
+    /**
+     * Crée un client Validation avec configuration personnalisée
+     */
+    public static function createValidationCustom(
+        string $baseUrl,
+        string $jwtToken,
+        array $httpOptions = [],
+        ?LoggerInterface $logger = null
+    ): ValidationClient {
+        $httpClient = new Client($httpOptions);
+        return new ValidationClient($baseUrl, $jwtToken, $httpClient, $logger);
     }
 }

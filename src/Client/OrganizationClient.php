@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Client;
+namespace Netfield\Client\Client;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Exception\NetfieldApiException;
-use Netfield\RagClient\Models\Request\CreateClientTokenRequest;
-use Netfield\RagClient\Models\Response\ClientTokenResponse;
+use Netfield\Client\Auth\JwtAuthenticator;
+use Netfield\Client\Exception\NetfieldApiException;
+use Netfield\Client\Models\Request\CreateClientTokenRequest;
+use Netfield\Client\Models\Response\ClientTokenResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 

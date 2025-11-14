@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Auth;
+namespace Netfield\Client\Auth;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use Netfield\RagClient\Exception\AuthenticationException;
+use Netfield\Client\Exception\AuthenticationException;
 
 class JwtAuthenticator
 {

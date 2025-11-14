@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Tests\Integration;
+namespace Netfield\Client\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Netfield\RagClient\Client\OrganizationClient;
-use Netfield\RagClient\Models\Request\CreateClientTokenRequest;
-use Netfield\RagClient\Models\Response\ClientTokenResponse;
-use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Exception\NetfieldApiException;
+use Netfield\Client\Client\OrganizationClient;
+use Netfield\Client\Models\Request\CreateClientTokenRequest;
+use Netfield\Client\Models\Response\ClientTokenResponse;
+use Netfield\Client\Auth\JwtAuthenticator;
+use Netfield\Client\Exception\NetfieldApiException;
 
 class OrganizationClientIntegrationTest extends TestCase
 {

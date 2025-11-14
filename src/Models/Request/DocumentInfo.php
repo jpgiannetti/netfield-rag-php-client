@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Models\Request;
+namespace Netfield\Client\Models\Request;
 
 class DocumentInfo
 {

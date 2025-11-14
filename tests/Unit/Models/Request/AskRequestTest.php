@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Tests\Unit\Models\Request;
+namespace Netfield\Client\Tests\Unit\Models\Request;
 
 use PHPUnit\Framework\TestCase;
-use Netfield\RagClient\Models\Request\AskRequest;
-use Netfield\RagClient\Exception\NetfieldApiException;
+use Netfield\Client\Models\Request\AskRequest;
+use Netfield\Client\Exception\NetfieldApiException;
 
 class AskRequestTest extends TestCase
 {

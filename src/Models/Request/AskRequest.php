@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Models\Request;
+namespace Netfield\Client\Models\Request;
 
-use Netfield\RagClient\Exception\NetfieldApiException;
+use Netfield\Client\Exception\NetfieldApiException;
 
 class AskRequest
 {

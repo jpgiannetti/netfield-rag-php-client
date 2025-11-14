@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Client;
+namespace Netfield\Client\Client;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Exception\NetfieldApiException;
+use Netfield\Client\Auth\JwtAuthenticator;
+use Netfield\Client\Exception\NetfieldApiException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 

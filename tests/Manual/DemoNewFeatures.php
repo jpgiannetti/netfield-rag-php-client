@@ -9,12 +9,12 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use Netfield\RagClient\NetfieldClientFactory;
-use Netfield\RagClient\Models\Request\CreateOrganizationRequest;
-use Netfield\RagClient\Models\Request\CreateClientTokenRequest;
-use Netfield\RagClient\Models\Request\IndexDocumentRequest;
-use Netfield\RagClient\Models\Request\DocumentInfo;
-use Netfield\RagClient\Auth\JwtAuthenticator;
+use Netfield\Client\NetfieldClientFactory;
+use Netfield\Client\Models\Request\CreateOrganizationRequest;
+use Netfield\Client\Models\Request\CreateClientTokenRequest;
+use Netfield\Client\Models\Request\IndexDocumentRequest;
+use Netfield\Client\Models\Request\DocumentInfo;
+use Netfield\Client\Auth\JwtAuthenticator;
 
 echo "🎉 Netfield RAG PHP Client - New Features Demo\n";
 echo "=" . str_repeat("=", 50) . "\n\n";

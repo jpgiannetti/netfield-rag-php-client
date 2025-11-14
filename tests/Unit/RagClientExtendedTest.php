@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Tests\Unit;
+namespace Netfield\Client\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Netfield\RagClient\Client\NetfieldClient;
-use Netfield\RagClient\Auth\JwtAuthenticator;
+use Netfield\Client\Client\NetfieldClient;
+use Netfield\Client\Auth\JwtAuthenticator;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Handler\MockHandler;
@@ -112,83 +112,20 @@ class RagClientExtendedTest extends TestCase
     }
     */
 
-    public function testGetValidationSummary(): void
-    {
-        $responseData = [
-            'total_documents' => 100,
-            'documents_with_errors' => 5,
-            'total_errors' => 8,
-            'total_warnings' => 12,
-            'error_rate' => 0.05,
-            'most_common_errors' => [
-                ['field' => 'amount', 'error_count' => 3],
-                ['field' => 'date', 'error_count' => 2]
-            ]
-        ];
+    /**
+     * Test déplacé vers MonitoringClientTest - getValidationSummary() est maintenant dans ValidationClient
+     */
+    // public function testGetValidationSummary(): void
 
-        $this->mockHandler->append(
-            new Response(200, ['Content-Type' => 'application/json'], json_encode($responseData))
-        );
+    /**
+     * Test déplacé vers MonitoringClientTest - getPrometheusMetrics() est maintenant dans MonitoringClient
+     */
+    // public function testGetPrometheusMetrics(): void
 
-        $result = $this->ragClient->getValidationSummary(30);
-
-        $this->assertIsArray($result);
-        $this->assertEquals(100, $result['total_documents']);
-        $this->assertEquals(5, $result['documents_with_errors']);
-        $this->assertEquals(0.05, $result['error_rate']);
-        $this->assertCount(2, $result['most_common_errors']);
-    }
-
-    public function testGetPrometheusMetrics(): void
-    {
-        $metricsData = '# HELP rag_queries_total Total number of RAG queries
-# TYPE rag_queries_total counter
-rag_queries_total{tenant="test_client"} 42
-# HELP rag_query_duration_seconds RAG query duration
-# TYPE rag_query_duration_seconds histogram
-rag_query_duration_seconds_bucket{le="1.0"} 10';
-
-        $this->mockHandler->append(
-            new Response(200, ['Content-Type' => 'text/plain'], $metricsData)
-        );
-
-        $result = $this->ragClient->getPrometheusMetrics();
-
-        $this->assertIsString($result);
-        $this->assertThat($result, $this->stringContains('rag_queries_total'));
-        $this->assertThat($result, $this->stringContains('test_client'));
-    }
-
-    public function testGetDetailedHealthCheck(): void
-    {
-        $responseData = [
-            'status' => 'healthy',
-            'services' => [
-                'weaviate' => ['status' => 'up', 'response_time' => 0.05],
-                'ollama' => ['status' => 'up', 'response_time' => 0.12],
-                'redis' => ['status' => 'up', 'response_time' => 0.01]
-            ],
-            'system' => [
-                'cpu_usage' => 45.2,
-                'memory_usage' => 62.8,
-                'disk_usage' => 78.1
-            ],
-            'version' => '1.0.0',
-            'uptime' => 3600
-        ];
-
-        $this->mockHandler->append(
-            new Response(200, ['Content-Type' => 'application/json'], json_encode($responseData))
-        );
-
-        $result = $this->ragClient->getDetailedHealthCheck();
-
-        $this->assertIsArray($result);
-        $this->assertEquals('healthy', $result['status']);
-        $this->assertArrayHasKey('services', $result);
-        $this->assertArrayHasKey('system', $result);
-        $this->assertEquals('1.0.0', $result['version']);
-    }
+    /**
+     * Test déplacé vers MonitoringClientTest - getDetailedHealthCheck() est maintenant dans MonitoringClient
+     */
+    // public function testGetDetailedHealthCheck(): void
 
     public function testGetAvailableModels(): void
     {
@@ -213,30 +150,8 @@ rag_query_duration_seconds_bucket{le="1.0"} 10';
         $this->assertEquals('llama3', $result['default_model']);
     }
 
-    public function testGetConfidenceMetrics(): void
-    {
-        $responseData = [
-            'average_confidence' => 0.78,
-            'confidence_distribution' => [
-                'very_high' => 15,
-                'high' => 25,
-                'medium' => 30,
-                'low' => 20,
-                'very_low' => 10
-            ],
-            'total_queries' => 100,
-            'period' => '24h'
-        ];
-
-        $this->mockHandler->append(
-            new Response(200, ['Content-Type' => 'application/json'], json_encode($responseData))
-        );
-
-        $result = $this->ragClient->getConfidenceMetrics();
-
-        $this->assertIsArray($result);
-        $this->assertEquals(0.78, $result['average_confidence']);
-        $this->assertArrayHasKey('confidence_distribution', $result);
-        $this->assertEquals(100, $result['total_queries']);
-    }
+    /**
+     * Test déplacé vers MonitoringClientTest - getConfidenceMetrics() est maintenant dans MonitoringClient
+     */
+    // public function testGetConfidenceMetrics(): void
 }

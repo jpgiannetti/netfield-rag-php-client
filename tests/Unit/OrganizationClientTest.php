@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Tests\Unit;
+namespace Netfield\Client\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Netfield\RagClient\Client\OrganizationClient;
-use Netfield\RagClient\Models\Request\CreateClientTokenRequest;
-use Netfield\RagClient\Models\Response\ClientTokenResponse;
-use Netfield\RagClient\Auth\JwtAuthenticator;
+use Netfield\Client\Client\OrganizationClient;
+use Netfield\Client\Models\Request\CreateClientTokenRequest;
+use Netfield\Client\Models\Response\ClientTokenResponse;
+use Netfield\Client\Auth\JwtAuthenticator;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Handler\MockHandler;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Exception;
+namespace Netfield\Client\Exception;
 
 /**
  * Codes d'erreur standardisés de l'API RAG

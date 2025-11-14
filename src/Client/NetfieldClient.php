@@ -2,22 +2,37 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Client;
+namespace Netfield\Client\Client;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Netfield\RagClient\Auth\JwtAuthenticator;
-use Netfield\RagClient\Exception\NetfieldApiException;
-use Netfield\RagClient\Models\Request\AskRequest;
-use Netfield\RagClient\Models\Request\IndexDocumentRequest;
-use Netfield\RagClient\Models\Request\BulkIndexRequest;
-use Netfield\RagClient\Models\Response\AskResponse;
-use Netfield\RagClient\Models\Response\IndexResponse;
-use Netfield\RagClient\Models\Response\BulkIndexResponse;
-use Netfield\RagClient\Models\Response\HealthResponse;
+use Netfield\Client\Auth\JwtAuthenticator;
+use Netfield\Client\Exception\NetfieldApiException;
+use Netfield\Client\Models\Request\AskRequest;
+use Netfield\Client\Models\Request\IndexDocumentRequest;
+use Netfield\Client\Models\Request\BulkIndexRequest;
+use Netfield\Client\Models\Response\AskResponse;
+use Netfield\Client\Models\Response\IndexResponse;
+use Netfield\Client\Models\Response\BulkIndexResponse;
+use Netfield\Client\Models\Response\HealthResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Client RAG pour les fonctionnalités de Q&A et indexation de documents
+ *
+ * Ce client se concentre uniquement sur le module RAG (Retrieval-Augmented Generation):
+ * - Questions/Réponses (ask, askStream)
+ * - Indexation de documents (index, bulkIndex, update, delete)
+ * - Configuration et monitoring RAG
+ *
+ * Pour les autres fonctionnalités, utilisez les clients spécialisés:
+ * - DisClient: Classification de documents (DIS module)
+ * - MonitoringClient: Métriques, health checks, traces
+ * - ValidationClient: Validation de documents
+ * - AdminClient: Gestion organisations/utilisateurs
+ * - OrganizationClient: Gestion clients
+ */
 class NetfieldClient
 {
     use ErrorMessageExtractorTrait;
@@ -47,7 +62,7 @@ class NetfieldClient
     }
 
     /**
-     * Pose une question au système RAG (module RAG)
+     * Pose une question au système RAG
      */
     public function ask(AskRequest $request): AskResponse
     {
@@ -181,7 +196,6 @@ class NetfieldClient
         }
     }
 
-
     /**
      * Indexation en lot
      *
@@ -224,7 +238,6 @@ class NetfieldClient
             );
         }
     }
-
 
     /**
      * Met à jour un document
@@ -269,7 +282,6 @@ class NetfieldClient
             );
         }
     }
-
 
     /**
      * Supprime un document
@@ -400,536 +412,6 @@ class NetfieldClient
     }
 
     /**
-     * Valide des documents sans les indexer (dry-run)
-     */
-    public function validateDocuments(BulkIndexRequest $request): array
-    {
-        try {
-            $this->logger->info('Validating documents', ['count' => count($request->getDocuments())]);
-
-            $response = $this->httpClient->post($this->baseUrl . '/api/v1/index/validate', [
-                'headers' => $this->authenticator->getHeaders(),
-                'json' => $request->toArray(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Document validation failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new NetfieldApiException(
-                'Failed to validate documents: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-
-    /**
-     * Récupère le rapport de validation d'un document
-     */
-    public function getDocumentValidationReport(string $documentId): array
-    {
-        try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/validation/report/' . urlencode($documentId), [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            throw new NetfieldApiException(
-                'Failed to get document validation report: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Récupère un résumé des validations
-     */
-    public function getValidationSummary(int $daysBack = 30): array
-    {
-        try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/validation/summary?days_back=' . $daysBack, [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            throw new NetfieldApiException(
-                'Failed to get validation summary: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Recherche les documents avec erreurs de validation
-     */
-    public function queryValidationReports(array $filters = []): array
-    {
-        try {
-            $this->logger->info('Querying validation reports', ['filters' => $filters]);
-
-            $response = $this->httpClient->post($this->baseUrl . '/api/v1/validation/query', [
-                'headers' => $this->authenticator->getHeaders(),
-                'json' => $filters,
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Validation query failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new NetfieldApiException(
-                'Failed to query validation reports: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Récupère les erreurs par champ
-     */
-    public function getErrorsByField(?string $docType = null, int $limit = 10): array
-    {
-        try {
-            $queryParams = ['limit' => $limit];
-            if ($docType !== null) {
-                $queryParams['doc_type'] = $docType;
-            }
-
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/validation/errors/by-field?' . http_build_query($queryParams), [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            throw new NetfieldApiException(
-                'Failed to get errors by field: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Nettoie les anciens rapports de validation (admin uniquement)
-     */
-    public function cleanupOldReports(int $daysToKeep = 90): array
-    {
-        try {
-            $this->logger->info('Cleaning up old validation reports', ['days_to_keep' => $daysToKeep]);
-
-            $response = $this->httpClient->delete($this->baseUrl . '/api/v1/validation/cleanup?days_to_keep=' . $daysToKeep, [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Cleanup failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new NetfieldApiException(
-                'Failed to cleanup old reports: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Récupère les paramètres UI pour la gestion de confiance
-     */
-    public function getUISettings(): array
-    {
-        try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/confidence/ui-settings', [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            throw new NetfieldApiException(
-                'Failed to get UI settings: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Récupère les informations sur le modèle de calibration de confiance
-     */
-    public function getCalibrationInfo(): array
-    {
-        try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/confidence/calibration-info', [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            throw new NetfieldApiException(
-                'Failed to get calibration info: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Valide la confiance d'une réponse donnée
-     */
-    public function validateResponseConfidence(array $responseData): array
-    {
-        try {
-            $this->logger->info('Validating response confidence');
-
-            $response = $this->httpClient->post($this->baseUrl . '/api/v1/confidence/validate-response', [
-                'headers' => $this->authenticator->getHeaders(),
-                'json' => $responseData,
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Confidence validation failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new NetfieldApiException(
-                'Failed to validate response confidence: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Récupère les métriques de confiance
-     */
-    public function getConfidenceMetrics(): array
-    {
-        try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/confidence/metrics', [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            throw new NetfieldApiException(
-                'Failed to get confidence metrics: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Récupère les métriques Prometheus
-     */
-    public function getPrometheusMetrics(): string
-    {
-        try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/metrics', [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            return $response->getBody()->getContents();
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            throw new NetfieldApiException(
-                'Failed to get Prometheus metrics: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Health check détaillé avec métriques système
-     */
-    public function getDetailedHealthCheck(): array
-    {
-        try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/health/detailed', [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            throw new NetfieldApiException(
-                'Failed to get detailed health check: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Récupère les informations d'une trace spécifique
-     */
-    public function getTraceInfo(string $traceId): array
-    {
-        try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/traces/' . urlencode($traceId), [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            throw new NetfieldApiException(
-                'Failed to get trace info: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Résumé des performances du système RAG (module RAG)
-     */
-    public function getPerformanceSummary(): array
-    {
-        try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/performance/summary', [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            throw new NetfieldApiException(
-                'Failed to get performance summary: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Test des alertes de monitoring
-     */
-    public function testMonitoringAlert(string $alertType): array
-    {
-        try {
-            $this->logger->info('Testing monitoring alert', ['alert_type' => $alertType]);
-
-            $response = $this->httpClient->post($this->baseUrl . '/api/v1/monitoring/alerts/test?alert_type=' . urlencode($alertType), [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            $this->logger->error('Alert test failed', ['error' => $errorMessage, 'error_code' => $errorCode]);
-            throw new NetfieldApiException(
-                'Failed to test monitoring alert: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
-     * Statut système global (sans authentification pour monitoring externe)
-     */
-    public function getSystemStatus(): array
-    {
-        try {
-            $response = $this->httpClient->get($this->baseUrl . '/api/v1/monitoring/system/status', [
-                'headers' => $this->authenticator->getHeaders(),
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new NetfieldApiException('Invalid JSON response');
-            }
-
-            return $data;
-        } catch (GuzzleException $e) {
-            $errorMessage = $this->extractErrorMessage($e);
-            $errorData = $this->extractErrorData($e);
-            $errorCode = $this->extractErrorCode($e);
-            throw new NetfieldApiException(
-                'Failed to get system status: ' . $errorMessage,
-                $e->getCode(),
-                $e,
-                null,
-                $errorCode,
-                $errorData
-            );
-        }
-    }
-
-    /**
      * Récupère la liste des modèles disponibles dans Ollama
      */
     public function getAvailableModels(): array
@@ -962,7 +444,7 @@ class NetfieldClient
     }
 
     /**
-     * Test du pipeline RAG complet avec informations de debug (module RAG)
+     * Test du pipeline RAG complet avec informations de debug
      */
     public function testRagPipeline(AskRequest $request): array
     {
@@ -998,7 +480,7 @@ class NetfieldClient
     }
 
     /**
-     * Vérifie l'état de santé du système RAG complet (module RAG)
+     * Vérifie l'état de santé du système RAG complet
      */
     public function ragHealthCheck(): array
     {

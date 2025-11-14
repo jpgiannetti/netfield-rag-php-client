@@ -29,13 +29,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Netfield\\RagClient\\": "src/",
+            "Netfield\\Client\\": "src/",
             "Ged\\": "src/Compat/Ged/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Netfield\\RagClient\\Tests\\": "tests/"
+            "Netfield\\Client\\Tests\\": "tests/"
         }
     },
     "config": {

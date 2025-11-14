@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Exception;
+namespace Netfield\Client\Exception;
 
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;

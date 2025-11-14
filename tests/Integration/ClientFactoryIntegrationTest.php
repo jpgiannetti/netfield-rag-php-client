@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Tests\Integration;
+namespace Netfield\Client\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Netfield\RagClient\NetfieldClientFactory;
-use Netfield\RagClient\Client\NetfieldClient;
-use Netfield\RagClient\Client\AdminClient;
-use Netfield\RagClient\Client\OrganizationClient;
-use Netfield\RagClient\Exception\NetfieldApiException;
+use Netfield\Client\NetfieldClientFactory;
+use Netfield\Client\Client\NetfieldClient;
+use Netfield\Client\Client\AdminClient;
+use Netfield\Client\Client\OrganizationClient;
+use Netfield\Client\Exception\NetfieldApiException;
 
 class ClientFactoryIntegrationTest extends TestCase
 {

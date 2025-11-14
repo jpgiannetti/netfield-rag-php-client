@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Netfield\RagClient\Tests\Unit;
+namespace Netfield\Client\Tests\Unit;
 
-use Netfield\RagClient\Exception\ErrorCode;
+use Netfield\Client\Exception\ErrorCode;
 use PHPUnit\Framework\TestCase;
 
 class ErrorCodeTest extends TestCase
